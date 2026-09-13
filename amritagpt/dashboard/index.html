@@ -1,32 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AmritaGPT • Institutional Intelligence & MCP Platform</title>
+  <title>AmritaGPT • Institutional Intelligence & MCP Admin Console</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
+            amrita: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+              950: '#4c0519',
+            },
             brand: {
               50: '#eef2ff',
               100: '#e0e7ff',
-              400: '#818cf8',
               500: '#6366f1',
               600: '#4f46e5',
               700: '#4338ca',
-              900: '#312e81',
-            },
-            dark: {
-              bg: '#0B0F19',
-              card: '#111827',
-              border: '#1E293B',
-              hover: '#1F2937'
             }
           }
         }
@@ -42,75 +43,85 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
-    /* Custom scrollbars */
+    /* Custom clean scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0B0F19; }
-    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
-    .glass-card {
-      background: rgba(17, 24, 39, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(30, 41, 59, 0.9);
+    .card-white {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
     }
-    .glass-card-hover {
+    .card-white-hover {
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .glass-card-hover:hover {
-      border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.12);
+    .card-white-hover:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      transform: translateY(-1px);
     }
   </style>
 </head>
-<body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen flex flex-col font-sans selection:bg-rose-500 selection:text-white antialiased">
 
   <!-- ========================================================================= -->
   <!-- Top Navigation Bar                                                        -->
   <!-- ========================================================================= -->
-  <header class="border-b border-slate-800/80 bg-[#0B0F19]/90 sticky top-0 z-40 backdrop-blur-md">
+  <header class="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
       <!-- Brand Logo & Title -->
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white font-bold text-lg">
-          <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amrita-900 via-amrita-800 to-rose-600 flex items-center justify-center shadow-md shadow-rose-900/20 text-white font-bold text-lg">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">AmritaGPT</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 font-medium">MCP • RAG</span>
+            <span class="font-extrabold text-lg tracking-tight text-slate-900">AmritaGPT</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 border border-rose-200 font-semibold">Production Admin</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">MCP • RAG</span>
           </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Amrita Vishwa Vidyapeetham • Institutional Intelligence Bus</p>
+          <p class="text-[11px] text-slate-500 hidden sm:block">Amrita Vishwa Vidyapeetham • Institutional Knowledge & Intelligence Platform</p>
         </div>
       </div>
 
-      <!-- Live Status & User Role Switcher -->
-      <div class="flex items-center space-x-4">
+      <!-- Live Status, Admin Session & Role Selector -->
+      <div class="flex items-center space-x-3">
         <!-- Live System Status Badge -->
-        <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+        <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span id="system-status-pill" class="text-slate-300">Checking status...</span>
+          <span id="system-status-pill" class="text-slate-600 font-medium">Checking engines...</span>
         </div>
 
-        <!-- Role Switcher -->
-        <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
-          <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span class="text-slate-400 hidden sm:inline">Role:</span>
-          <select id="global-role-select" onchange="updateActiveRole()" class="bg-transparent text-indigo-300 font-medium focus:outline-none cursor-pointer">
-            <option value="student" class="bg-slate-900 text-slate-200">Student</option>
-            <option value="faculty" class="bg-slate-900 text-slate-200">Faculty</option>
-            <option value="admin" class="bg-slate-900 text-slate-200">Administrator</option>
-            <option value="public" class="bg-slate-900 text-slate-200">Public</option>
+        <!-- Admin Session Status Badge / Unlock Button -->
+        <div id="admin-auth-container" class="flex items-center">
+          <button id="btn-admin-auth" onclick="openAdminKeyModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-amrita-800 border border-rose-200 hover:bg-rose-100 transition-colors">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+            <span id="admin-auth-label">Unlock Admin Access</span>
+          </button>
+        </div>
+
+        <!-- Role Simulator Switcher -->
+        <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="text-slate-500 hidden sm:inline font-medium">View as:</span>
+          <select id="global-role-select" onchange="updateActiveRole()" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer">
+            <option value="admin">Administrator</option>
+            <option value="faculty">Faculty</option>
+            <option value="student">Student</option>
+            <option value="public">Public</option>
           </select>
         </div>
 
-        <!-- API Docs Quick Link -->
-        <a href="/docs" target="_blank" class="text-xs flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition-colors">
-          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Swagger API</span>
+        <!-- Swagger Docs Quick Link -->
+        <a href="/docs" target="_blank" class="text-xs flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium transition-colors">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="hidden sm:inline">API Specs</span>
         </a>
       </div>
     </div>
@@ -123,67 +134,73 @@
 
     <!-- Sidebar Navigation -->
     <aside class="w-full md:w-64 shrink-0 flex flex-col space-y-1">
-      <nav class="space-y-1">
-        <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+      <nav class="space-y-1 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+        <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amrita-900 text-white shadow-sm">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
           <span>Overview & Stats</span>
         </button>
-        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
-          <i data-lucide="message-square-code" class="w-4 h-4"></i>
+        <button onclick="switchTab('documents')" id="nav-documents" class="tab-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <span class="flex items-center space-x-3">
+            <i data-lucide="folder-search" class="w-4 h-4"></i>
+            <span>Documents Manager</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 font-bold border border-rose-200" id="sidebar-doc-count">--</span>
+        </button>
+        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
           <span>Grounded Q&A Studio</span>
         </button>
-        <button onclick="switchTab('retrieval')" id="nav-retrieval" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+        <button onclick="switchTab('retrieval')" id="nav-retrieval" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="binary" class="w-4 h-4"></i>
           <span>Hybrid RAG Inspector</span>
         </button>
-        <button onclick="switchTab('documents')" id="nav-documents" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
-          <i data-lucide="folder-search" class="w-4 h-4"></i>
-          <span>Document Catalog</span>
-        </button>
-        <button onclick="switchTab('ingestion')" id="nav-ingestion" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+        <button onclick="switchTab('ingestion')" id="nav-ingestion" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           <span>Ingestion & Index Bus</span>
         </button>
-        <button onclick="switchTab('telemetry')" id="nav-telemetry" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+        <button onclick="switchTab('telemetry')" id="nav-telemetry" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="activity" class="w-4 h-4"></i>
           <span>Telemetry & Audit</span>
         </button>
-        <button onclick="switchTab('mcp')" id="nav-mcp" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+        <button onclick="switchTab('mcp')" id="nav-mcp" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="cpu" class="w-4 h-4"></i>
           <span>MCP & Developer Hub</span>
         </button>
       </nav>
 
       <!-- Server Environment Box -->
-      <div class="pt-6 mt-auto">
-        <div class="glass-card rounded-xl p-3.5 text-xs text-slate-400 space-y-2 border border-slate-800/60">
-          <div class="flex items-center justify-between text-slate-300 font-medium">
-            <span>Server Stack</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">v1.0.0</span>
+      <div class="pt-4 mt-auto">
+        <div class="card-white rounded-2xl p-4 text-xs text-slate-600 space-y-2.5">
+          <div class="flex items-center justify-between font-bold text-slate-800">
+            <span class="flex items-center space-x-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-amrita-700"></i>
+              <span>Dual Engines</span>
+            </span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">PROD</span>
           </div>
-          <div class="space-y-1 text-[11px]">
+          <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-100">
             <div class="flex justify-between">
-              <span>Embedding:</span>
-              <span class="text-slate-200 font-mono">BGE-Small (384d)</span>
+              <span class="text-slate-500">Vector Embeddings:</span>
+              <span class="text-slate-900 font-mono font-medium">BGE-Small (384d)</span>
             </div>
             <div class="flex justify-between">
-              <span>Lexical:</span>
-              <span class="text-slate-200 font-mono">BM25 Okapi</span>
+              <span class="text-slate-500">Sparse Lexical:</span>
+              <span class="text-slate-900 font-mono font-medium">BM25 Okapi</span>
             </div>
             <div class="flex justify-between">
-              <span>Reranker:</span>
-              <span class="text-slate-200 font-mono">Cross-Encoder</span>
+              <span class="text-slate-500">Re-ranking:</span>
+              <span class="text-slate-900 font-mono font-medium">Cross-Encoder</span>
             </div>
             <div class="flex justify-between">
-              <span>MCP Protocol:</span>
-              <span class="text-indigo-400 font-mono">SSE & stdio</span>
+              <span class="text-slate-500">MCP Protocol:</span>
+              <span class="text-amrita-800 font-mono font-medium">SSE & Stdio</span>
             </div>
           </div>
         </div>
       </div>
     </aside>
 
-    <!-- Main Dynamic Content Workspace -->
+    <!-- Main Content Workspace -->
     <main class="flex-1 min-w-0 space-y-6">
 
       <!-- =================================================================== -->
@@ -194,62 +211,65 @@
         <!-- KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Documents Card -->
-          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+          <div class="card-white rounded-2xl p-5 card-white-hover">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Documents</span>
-              <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Indexed Documents</span>
+              <div class="p-2 rounded-xl bg-rose-50 text-amrita-800 border border-rose-100">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
               </div>
             </div>
-            <div id="stat-docs" class="text-3xl font-extrabold text-white tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
-              <span class="text-emerald-400 font-medium">100% Parsed</span>
-              <span>• Heterogeneous PDFs, DOCX, XLSX</span>
+            <div id="stat-docs" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+              <span class="text-emerald-700 font-semibold flex items-center space-x-0.5">
+                <i data-lucide="check" class="w-3 h-3"></i>
+                <span>100% Parsed</span>
+              </span>
+              <span>• Full Text & Sections</span>
             </div>
           </div>
 
           <!-- Chunks Card -->
-          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+          <div class="card-white rounded-2xl p-5 card-white-hover">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Indexed Chunks</span>
-              <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Semantic Chunks</span>
+              <div class="p-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100">
                 <i data-lucide="layers" class="w-5 h-5"></i>
               </div>
             </div>
-            <div id="stat-chunks" class="text-3xl font-extrabold text-white tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
-              <span class="text-cyan-400 font-medium">Context Enriched</span>
-              <span>• Semantic Boundaries</span>
+            <div id="stat-chunks" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+              <span class="text-indigo-700 font-semibold">Context Enriched</span>
+              <span>• Incremental Cache</span>
             </div>
           </div>
 
           <!-- Grounding Faithfulness -->
-          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+          <div class="card-white rounded-2xl p-5 card-white-hover">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Grounding Score</span>
-              <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Factual Grounding</span>
+              <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
               </div>
             </div>
-            <div id="stat-grounding" class="text-3xl font-extrabold text-white tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
-              <span class="text-emerald-400 font-medium">NLI Verified</span>
-              <span>• Zero Hallucination Guarantee</span>
+            <div id="stat-grounding" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+              <span class="text-emerald-700 font-semibold">NLI Verified</span>
+              <span>• Citation Grounded</span>
             </div>
           </div>
 
           <!-- Query Latency -->
-          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+          <div class="card-white rounded-2xl p-5 card-white-hover">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Avg Latency</span>
-              <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Latency</span>
+              <div class="p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-100">
                 <i data-lucide="zap" class="w-5 h-5"></i>
               </div>
             </div>
-            <div id="stat-latency" class="text-3xl font-extrabold text-white tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
-              <span class="text-indigo-400 font-medium">Hybrid Fused</span>
-              <span>• Dense + BM25 + Cross-Encoder</span>
+            <div id="stat-latency" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+              <span class="text-slate-700 font-semibold">Hybrid RAG</span>
+              <span>• Dense + BM25 Fusion</span>
             </div>
           </div>
         </div>
@@ -257,25 +277,25 @@
         <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Department Distribution Chart -->
-          <div class="glass-card rounded-2xl p-5 lg:col-span-2">
-            <div class="flex items-center justify-between mb-4">
+          <div class="card-white rounded-2xl p-5 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div>
-                <h3 class="text-sm font-semibold text-slate-200">Institutional Departments</h3>
-                <p class="text-xs text-slate-400">Distribution of indexed documents by campus department</p>
+                <h3 class="text-sm font-bold text-slate-900">Institutional Departments</h3>
+                <p class="text-xs text-slate-500">Document volume across academic & administrative divisions</p>
               </div>
-              <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono" id="dept-count-badge">-- Depts</span>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200" id="dept-count-badge">-- Depts</span>
             </div>
             <div class="h-64 w-full">
               <canvas id="deptChart"></canvas>
             </div>
           </div>
 
-          <!-- Access Control Distribution -->
-          <div class="glass-card rounded-2xl p-5">
-            <div class="flex items-center justify-between mb-4">
+          <!-- Access Governance Distribution -->
+          <div class="card-white rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div>
-                <h3 class="text-sm font-semibold text-slate-200">Access Governance</h3>
-                <p class="text-xs text-slate-400">Role-based document classification</p>
+                <h3 class="text-sm font-bold text-slate-900">Access Governance</h3>
+                <p class="text-xs text-slate-500">Policy tier distribution</p>
               </div>
               <i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>
             </div>
@@ -285,50 +305,50 @@
           </div>
         </div>
 
-        <!-- System Engine Status Grid -->
-        <div class="glass-card rounded-2xl p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-slate-200 flex items-center space-x-2">
-              <i data-lucide="server" class="w-4 h-4 text-indigo-400"></i>
-              <span>Core Engines & Persistence Layers</span>
+        <!-- Engine Health & Persistence Status -->
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <i data-lucide="server" class="w-4 h-4 text-amrita-700"></i>
+              <span>Core Knowledge & Index Subsystems</span>
             </h3>
-            <button onclick="refreshDashboardStats()" class="text-xs flex items-center space-x-1 text-slate-400 hover:text-slate-200 transition-colors">
+            <button onclick="refreshDashboardStats()" class="text-xs flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors">
               <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              <span>Refresh</span>
+              <span>Refresh Stats</span>
             </button>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-slate-300">Dense Vector Index</span>
-                <span id="badge-vector" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Active</span>
+                <span class="font-bold text-slate-800">Dense Vector Index</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
               </div>
-              <p class="text-slate-400">FastEmbed BAAI/bge-small-en-v1.5 normalized cosine matrix on disk.</p>
+              <p class="text-slate-600">FastEmbed BAAI/bge-small-en-v1.5 normalized cosine matrix with incremental caching.</p>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-slate-300">Sparse BM25 Index</span>
-                <span id="badge-bm25" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Active</span>
+                <span class="font-bold text-slate-800">Sparse BM25 Index</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
               </div>
-              <p class="text-slate-400">Okapi BM25 tokenized dictionary preserving course codes & regulations.</p>
+              <p class="text-slate-600">Okapi BM25 tokenized dictionary preserving regulations and course codes.</p>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-slate-300">SQLite Metadata DB</span>
-                <span id="badge-db" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Connected</span>
+                <span class="font-bold text-slate-800">SQLite Metadata DB</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Connected</span>
               </div>
-              <p class="text-slate-400">Stores document catalog, section spans, query audit logs, and ACLs.</p>
+              <p class="text-slate-600">Relational lineage catalog, document sections, chunks, audit logs, and ACL policies.</p>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-slate-300">Model Context Protocol</span>
-                <span id="badge-mcp" class="px-2 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-400 border border-indigo-800">Mounted</span>
+                <span class="font-bold text-slate-800">Model Context Protocol</span>
+                <span class="px-2 py-0.5 rounded text-[10px] bg-rose-100 text-amrita-900 font-bold border border-rose-300">Mounted</span>
               </div>
-              <p class="text-slate-400">SSE endpoint active under <code class="text-indigo-300">/mcp/sse</code> for Claude & Cursor.</p>
+              <p class="text-slate-600">SSE endpoint active under <code class="text-amrita-800 font-semibold">/mcp/sse</code> for Claude & Cursor.</p>
             </div>
           </div>
         </div>
@@ -337,22 +357,126 @@
 
 
       <!-- =================================================================== -->
-      <!-- TAB 2: GROUNDED Q&A STUDIO                                          -->
+      <!-- TAB 2: TOTAL CONTROL DOCUMENT MANAGER                               -->
+      <!-- =================================================================== -->
+      <section id="tab-documents" class="tab-content hidden space-y-6">
+        
+        <!-- Header & Add Document Button -->
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="folder-cog" class="w-5 h-5 text-amrita-800"></i>
+                <span>Institutional Documents Master Controller</span>
+              </h2>
+              <p class="text-xs text-slate-500">Upload new documents, inspect parsed structures, edit access levels, or delete files</p>
+            </div>
+
+            <!-- Upload Document Trigger Button -->
+            <button onclick="openUploadModal()" class="px-4 py-2.5 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-2 shadow-sm transition-all">
+              <i data-lucide="file-plus-2" class="w-4 h-4"></i>
+              <span>Add New Document</span>
+            </button>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+            <div class="relative flex-1 min-w-[200px]">
+              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="doc-search-query" onkeyup="filterDocumentsCatalog()" placeholder="Search by filename or keyword..." class="w-full bg-slate-50 text-slate-800 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white transition-colors">
+            </div>
+
+            <select id="doc-dept-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+              <option value="">All Departments</option>
+            </select>
+
+            <select id="doc-access-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+              <option value="">All Access Policies</option>
+              <option value="admin">Admin Only</option>
+              <option value="faculty">Faculty</option>
+              <option value="student">Student</option>
+              <option value="public">Public</option>
+            </select>
+
+            <button onclick="loadDocuments()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors" title="Reload Documents">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Documents Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                <tr>
+                  <th class="p-3">Filename</th>
+                  <th class="p-3">Department</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">AY / Ver</th>
+                  <th class="p-3">Sections</th>
+                  <th class="p-3">Access Tier</th>
+                  <th class="p-3 text-right">Administrative Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documents-table-body" class="divide-y divide-slate-100 bg-white">
+                <!-- Rows inserted dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Footer -->
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-2">
+            <div>Showing <span id="doc-showing-count" class="text-slate-900 font-bold">0</span> documents</div>
+            <div class="flex items-center space-x-2">
+              <button id="doc-prev-page" onclick="changeDocPage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Previous</button>
+              <span id="doc-page-info" class="text-slate-600 font-medium">Page 1</span>
+              <button id="doc-next-page" onclick="changeDocPage(1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Document Version Comparison Tool -->
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="git-compare" class="w-4 h-4 text-indigo-700"></i>
+            <span>Document & Policy Version Comparison Inspector</span>
+          </h3>
+          <p class="text-xs text-slate-500">Compare revisions between regulations or syllabus versions on a specific ordinance</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="text" id="compare-doc1" placeholder="Doc ID 1 (e.g. 0e9e693151be)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+            <input type="text" id="compare-doc2" placeholder="Doc ID 2 (e.g. 3a61d2dfbd68)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+            <input type="text" id="compare-topic" placeholder="Topic filter (e.g. Attendance, Malpractice)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+          </div>
+          <button onclick="executeCompareDocs()" class="px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center space-x-1.5 transition-colors">
+            <i data-lucide="split" class="w-3.5 h-3.5"></i>
+            <span>Compare Versions</span>
+          </button>
+
+          <div id="compare-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: GROUNDED Q&A STUDIO                                          -->
       <!-- =================================================================== -->
       <section id="tab-chat" class="tab-content hidden space-y-6">
         
-        <div class="glass-card rounded-2xl p-5 space-y-4">
+        <div class="card-white rounded-2xl p-5 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-                <i data-lucide="message-square" class="w-5 h-5 text-indigo-400"></i>
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-amrita-800"></i>
                 <span>Grounded Institutional Reasoning Engine</span>
               </h2>
-              <p class="text-xs text-slate-400">Every response is strictly verified against indexed documents with exact citations</p>
+              <p class="text-xs text-slate-500">Formulates verified institutional answers backed strictly by verified citations</p>
             </div>
             
             <div class="flex items-center space-x-2">
-              <select id="chat-dept-filter" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
+              <select id="chat-dept-filter" class="bg-slate-50 text-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-amrita-700">
                 <option value="">All Departments</option>
               </select>
             </div>
@@ -360,51 +484,49 @@
 
           <!-- Suggested Prompt Chips -->
           <div class="flex flex-wrap gap-2 pt-1">
-            <span class="text-xs text-slate-500 self-center">Try asking:</span>
-            <button onclick="setChatPrompt('What is the minimum attendance requirement for writing end-semester exams?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+            <span class="text-xs text-slate-400 self-center font-medium">Sample Queries:</span>
+            <button onclick="setChatPrompt('What is the minimum attendance requirement for writing end-semester exams?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
               Minimum attendance requirement?
             </button>
-            <button onclick="setChatPrompt('What are the hostel check-in timings and leave policies?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+            <button onclick="setChatPrompt('What are the hostel check-in timings and leave policies?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
               Hostel leave policies?
             </button>
-            <button onclick="setChatPrompt('What are the regulations regarding examination malpractice and committees?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+            <button onclick="setChatPrompt('What are the regulations regarding examination malpractice and committees?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
               Exam malpractice rules?
             </button>
-            <button onclick="setChatPrompt('Find details on curriculum and syllabus structure for B.Tech CSE')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+            <button onclick="setChatPrompt('Find details on curriculum and syllabus structure for B.Tech CSE')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
               B.Tech CSE Syllabus?
             </button>
           </div>
 
           <!-- Query Input Area -->
           <div class="relative">
-            <textarea id="chat-input" rows="3" placeholder="Enter your institutional question here... (e.g. grading formula, attendance rule, CIR placement criteria)" class="w-full bg-slate-900/90 text-slate-100 rounded-xl p-3.5 pr-28 text-sm border border-slate-700/80 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"></textarea>
-            <button id="chat-submit-btn" onclick="executeQuestion()" class="absolute right-3 bottom-3.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-indigo-600/20 transition-all">
+            <textarea id="chat-input" rows="3" placeholder="Type your institutional question here... (e.g. grading formula, attendance threshold, hostel curfew)" class="w-full bg-slate-50 text-slate-900 rounded-xl p-3.5 pr-28 text-sm border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white resize-none transition-colors"></textarea>
+            <button id="chat-submit-btn" onclick="executeQuestion()" class="absolute right-3 bottom-3.5 px-4 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all">
               <i data-lucide="send" class="w-3.5 h-3.5"></i>
-              <span>Generate</span>
+              <span>Ask AmritaGPT</span>
             </button>
           </div>
         </div>
 
         <!-- Answer / Evidence Display Card -->
         <div id="chat-result-container" class="hidden space-y-4">
-          <!-- Answer Card -->
-          <div class="glass-card rounded-2xl p-6 space-y-4">
+          <div class="card-white rounded-2xl p-6 space-y-4">
             <!-- Header with Grounding Badge -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span id="chat-intent-badge" class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Academic Regulation</span>
-                <span class="text-slate-600">•</span>
-                <span id="chat-latency-badge" class="text-xs text-slate-400">-- ms</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span id="chat-intent-badge" class="text-xs font-bold uppercase tracking-wider text-amrita-800">Academic Regulation</span>
+                <span class="text-slate-300">•</span>
+                <span id="chat-latency-badge" class="text-xs text-slate-500">-- ms</span>
               </div>
 
               <div class="flex items-center space-x-3">
-                <!-- Grounding Confidence Meter -->
-                <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-xs">
-                  <span class="text-slate-400">Grounding Confidence:</span>
-                  <span id="chat-grounding-score" class="font-bold text-emerald-400">--%</span>
+                <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 text-xs">
+                  <span class="text-slate-500">Grounding Confidence:</span>
+                  <span id="chat-grounding-score" class="font-black text-emerald-700">--%</span>
                 </div>
-                <div id="chat-faithful-badge" class="flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                <div id="chat-faithful-badge" class="flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
                   <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
                   <span>Faithful & Grounded</span>
                 </div>
@@ -412,33 +534,33 @@
             </div>
 
             <!-- Rendered Answer Text -->
-            <div id="chat-answer-body" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-2">
+            <div id="chat-answer-body" class="prose max-w-none text-slate-800 text-sm leading-relaxed space-y-2">
               <!-- Content rendered via Marked -->
             </div>
 
             <!-- Citations Block -->
-            <div class="pt-4 border-t border-slate-800/80">
-              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
-                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>Institutional Citations</span>
+            <div class="pt-4 border-t border-slate-100">
+              <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amrita-700"></i>
+                <span>Authoritative Institutional Citations</span>
               </h4>
-              <div id="chat-citations-list" class="space-y-1.5 text-xs text-slate-300">
+              <div id="chat-citations-list" class="space-y-1.5 text-xs text-slate-700">
                 <!-- Citation entries -->
               </div>
             </div>
           </div>
 
           <!-- Retrieved Source Evidence Accordion -->
-          <div class="glass-card rounded-2xl p-5">
-            <button onclick="toggleEvidenceAccordion()" class="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <div class="card-white rounded-2xl p-5">
+            <button onclick="toggleEvidenceAccordion()" class="w-full flex items-center justify-between text-left text-xs font-bold text-slate-800 uppercase tracking-wider">
               <span class="flex items-center space-x-2">
-                <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
+                <i data-lucide="layers" class="w-4 h-4 text-indigo-700"></i>
                 <span>Retrieved Evidence Passages (<span id="chat-source-count">0</span>)</span>
               </span>
               <i id="evidence-chevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
             </button>
 
-            <div id="evidence-accordion-body" class="hidden mt-4 space-y-3 pt-3 border-t border-slate-800">
+            <div id="evidence-accordion-body" class="hidden mt-4 space-y-3 pt-3 border-t border-slate-100">
               <!-- Source Cards populated dynamically -->
             </div>
           </div>
@@ -448,66 +570,64 @@
 
 
       <!-- =================================================================== -->
-      <!-- TAB 3: HYBRID RETRIEVAL INSPECTOR                                   -->
+      <!-- TAB 4: HYBRID RETRIEVAL INSPECTOR                                   -->
       <!-- =================================================================== -->
       <section id="tab-retrieval" class="tab-content hidden space-y-6">
-        <div class="glass-card rounded-2xl p-5 space-y-4">
+        <div class="card-white rounded-2xl p-5 space-y-4">
           <div>
-            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-              <i data-lucide="binary" class="w-5 h-5 text-cyan-400"></i>
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+              <i data-lucide="binary" class="w-5 h-5 text-indigo-700"></i>
               <span>Multi-Stage Hybrid RAG Inspector</span>
             </h2>
-            <p class="text-xs text-slate-400">Inspect Dense Semantic Vector Search + BM25 Lexical Scores + Reciprocal Rank Fusion (RRF)</p>
+            <p class="text-xs text-slate-500">Visualizes Dense Vectors + BM25 Lexical + Reciprocal Rank Fusion (RRF) + Cross-Encoder</p>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3">
-            <input type="text" id="inspect-query" placeholder="Enter test query (e.g. 'R.14 grading criteria 2023')" class="flex-1 bg-slate-900/90 text-slate-100 rounded-xl px-4 py-2.5 text-sm border border-slate-700 focus:outline-none focus:border-cyan-500">
-            <select id="inspect-role" class="bg-slate-900 text-slate-300 text-xs px-3 py-2 rounded-xl border border-slate-700">
+            <input type="text" id="inspect-query" placeholder="Enter test query (e.g. 'R.14 grading criteria 2023')" class="flex-1 bg-slate-50 text-slate-900 rounded-xl px-4 py-2.5 text-sm border border-slate-200 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors">
+            <select id="inspect-role" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 font-semibold">
               <option value="student">Role: Student</option>
               <option value="faculty">Role: Faculty</option>
               <option value="admin">Role: Admin</option>
               <option value="public">Role: Public</option>
             </select>
-            <button onclick="executeRetrievalInspect()" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors">
+            <button onclick="executeRetrievalInspect()" class="px-5 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition-colors">
               <i data-lucide="search" class="w-4 h-4"></i>
               <span>Inspect Retrieval</span>
             </button>
           </div>
         </div>
 
-        <!-- Inspection Results -->
         <div id="inspect-results-container" class="hidden space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass-card rounded-xl p-4">
-              <span class="text-xs text-slate-400">Detected Intent</span>
-              <div id="inspect-intent" class="text-lg font-bold text-white mt-1">--</div>
+            <div class="card-white rounded-xl p-4">
+              <span class="text-xs text-slate-500 font-medium">Detected Query Intent</span>
+              <div id="inspect-intent" class="text-lg font-black text-slate-900 mt-1">--</div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-              <span class="text-xs text-slate-400">Total Fused Candidates</span>
-              <div id="inspect-total-candidates" class="text-lg font-bold text-cyan-400 mt-1">--</div>
+            <div class="card-white rounded-xl p-4">
+              <span class="text-xs text-slate-500 font-medium">Total Fused Candidates</span>
+              <div id="inspect-total-candidates" class="text-lg font-black text-indigo-700 mt-1">--</div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-              <span class="text-xs text-slate-400">Final Top-K Selected</span>
-              <div id="inspect-selected-k" class="text-lg font-bold text-emerald-400 mt-1">--</div>
+            <div class="card-white rounded-xl p-4">
+              <span class="text-xs text-slate-500 font-medium">Selected Top-K Evidence</span>
+              <div id="inspect-selected-k" class="text-lg font-black text-emerald-700 mt-1">--</div>
             </div>
           </div>
 
-          <!-- Passages Table -->
-          <div class="glass-card rounded-2xl p-5">
-            <h3 class="text-sm font-semibold text-slate-200 mb-3">Reranked Evidence Candidate Chunks</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
+          <div class="card-white rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-3">Reranked Candidate Chunks</h3>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3 rounded-l-lg">Rank</th>
+                    <th class="p-3">Rank</th>
                     <th class="p-3">Document</th>
                     <th class="p-3">Department</th>
                     <th class="p-3">Section / Page</th>
                     <th class="p-3">Rerank Score</th>
-                    <th class="p-3 rounded-r-lg">Access</th>
+                    <th class="p-3">Access Tier</th>
                   </tr>
                 </thead>
-                <tbody id="inspect-table-body" class="divide-y divide-slate-800">
+                <tbody id="inspect-table-body" class="divide-y divide-slate-100 bg-white">
                   <!-- Rows inserted dynamically -->
                 </tbody>
               </table>
@@ -518,140 +638,54 @@
 
 
       <!-- =================================================================== -->
-      <!-- TAB 4: DOCUMENT CATALOG EXPLORER                                    -->
-      <!-- =================================================================== -->
-      <section id="tab-documents" class="tab-content hidden space-y-6">
-        <div class="glass-card rounded-2xl p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-                <i data-lucide="folder" class="w-5 h-5 text-indigo-400"></i>
-                <span>Institutional Document Catalog</span>
-              </h2>
-              <p class="text-xs text-slate-400">Browse, filter, and inspect structured documents in the relational catalog</p>
-            </div>
-
-            <!-- Filter Controls -->
-            <div class="flex flex-wrap items-center gap-2">
-              <input type="text" id="doc-search-query" onkeyup="filterDocumentsCatalog()" placeholder="Search documents..." class="bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500 w-44">
-              <select id="doc-dept-select" onchange="filterDocumentsCatalog()" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
-                <option value="">All Departments</option>
-              </select>
-              <select id="doc-access-select" onchange="filterDocumentsCatalog()" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
-                <option value="">All Access Levels</option>
-                <option value="public">Public</option>
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Document Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-800">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th class="p-3">Filename</th>
-                  <th class="p-3">Department</th>
-                  <th class="p-3">Category</th>
-                  <th class="p-3">Year / Ver</th>
-                  <th class="p-3">Sections</th>
-                  <th class="p-3">Policy</th>
-                  <th class="p-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody id="documents-table-body" class="divide-y divide-slate-800">
-                <!-- Rows inserted dynamically -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination / Count Footer -->
-          <div class="flex items-center justify-between text-xs text-slate-400 pt-2">
-            <div>Showing <span id="doc-showing-count" class="text-slate-200 font-semibold">0</span> documents</div>
-            <div class="flex items-center space-x-2">
-              <button id="doc-prev-page" onclick="changeDocPage(-1)" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50">Prev</button>
-              <span id="doc-page-info" class="text-slate-400">Page 1</span>
-              <button id="doc-next-page" onclick="changeDocPage(1)" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50">Next</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Document Version Comparison Tool -->
-        <div class="glass-card rounded-2xl p-5 space-y-4">
-          <h3 class="text-sm font-semibold text-slate-200 flex items-center space-x-2">
-            <i data-lucide="git-compare" class="w-4 h-4 text-purple-400"></i>
-            <span>Document & Policy Version Comparator</span>
-          </h3>
-          <p class="text-xs text-slate-400">Compare revisions between two regulations or curriculum documents on a specific topic</p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input type="text" id="compare-doc1" placeholder="Doc ID 1 (e.g. 0e9e693151be)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
-            <input type="text" id="compare-doc2" placeholder="Doc ID 2 (e.g. 3a61d2dfbd68)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
-            <input type="text" id="compare-topic" placeholder="Topic filter (e.g. Attendance, Grading)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
-          </div>
-          <button onclick="executeCompareDocs()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors">
-            <i data-lucide="split" class="w-3.5 h-3.5"></i>
-            <span>Compare Versions</span>
-          </button>
-
-          <div id="compare-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-      </section>
-
-
-      <!-- =================================================================== -->
       <!-- TAB 5: INGESTION & INDEX BUS                                        -->
       <!-- =================================================================== -->
       <section id="tab-ingestion" class="tab-content hidden space-y-6">
-        <div class="glass-card rounded-2xl p-5 space-y-4">
-          <div class="flex items-center justify-between">
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-                <i data-lucide="hard-drive-download" class="w-5 h-5 text-emerald-400"></i>
-                <span>Institutional Knowledge Ingestion Engine</span>
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="hard-drive-download" class="w-5 h-5 text-emerald-700"></i>
+                <span>Incremental Ingestion Engine Bus</span>
               </h2>
-              <p class="text-xs text-slate-400">Continuous document ingestion, SHA-256 idempotency, and incremental embedding cache</p>
+              <p class="text-xs text-slate-500">Scans institutional directory, enforces idempotency, and reuses cached embeddings</p>
             </div>
-            <span id="ingestion-live-status-badge" class="px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300 border border-slate-700 font-medium">Idle</span>
+            <span id="ingestion-live-status-badge" class="px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-700 font-bold border border-slate-200">Idle</span>
           </div>
 
-          <!-- Ingestion Controls -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-              <span class="text-xs text-slate-400 font-medium">Mode</span>
+          <!-- Controls -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-700">Ingestion Mode</span>
               <div class="flex items-center space-x-2">
-                <input type="checkbox" id="ingest-force" class="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950">
-                <label for="ingest-force" class="text-xs text-slate-300 cursor-pointer">Force Re-index (Bypass Cache)</label>
+                <input type="checkbox" id="ingest-force" class="rounded border-slate-300 text-amrita-700 focus:ring-amrita-700">
+                <label for="ingest-force" class="text-xs text-slate-800 font-semibold cursor-pointer">Force Re-index (Bypass Cache)</label>
               </div>
-              <p class="text-[11px] text-slate-500">Default: Incremental update (skips already-embedded chunks in seconds!)</p>
+              <p class="text-[11px] text-slate-500">Default uses the incremental cache to skip unmodified chunks in seconds.</p>
             </div>
 
-            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-              <span class="text-xs text-slate-400 font-medium">File Limit (Optional)</span>
-              <input type="number" id="ingest-max-files" placeholder="e.g. 50 (leave blank for all)" class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
-              <p class="text-[11px] text-slate-500">Test ingestion over a limited sample of files.</p>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-700">File Limit (Optional)</span>
+              <input type="number" id="ingest-max-files" placeholder="e.g. 50 (leave empty for all)" class="w-full bg-white text-slate-800 text-xs px-3 py-1.5 rounded-lg border border-slate-200">
+              <p class="text-[11px] text-slate-500">Limit number of files for rapid testing.</p>
             </div>
 
-            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
-              <span class="text-xs text-slate-400 font-medium">Trigger Execution</span>
-              <button id="btn-trigger-ingestion" onclick="triggerIngestionRun()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+              <span class="text-xs font-bold text-slate-700">Execute Ingestion</span>
+              <button id="btn-trigger-ingestion" onclick="triggerIngestionRun()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
                 <i data-lucide="play" class="w-4 h-4"></i>
                 <span>Run Ingestion Pipeline</span>
               </button>
             </div>
           </div>
 
-          <!-- Ingestion Console Log -->
+          <!-- Console Output -->
           <div class="space-y-2 pt-2">
-            <div class="flex items-center justify-between text-xs text-slate-400">
-              <span class="font-mono">Ingestion Bus Console Output</span>
-              <button onclick="clearIngestLog()" class="hover:text-slate-200">Clear</button>
+            <div class="flex items-center justify-between text-xs text-slate-500">
+              <span class="font-mono font-bold">Ingestion Bus Console Output</span>
+              <button onclick="clearIngestLog()" class="hover:text-slate-800 font-semibold">Clear</button>
             </div>
-            <div id="ingestion-console" class="w-full h-56 rounded-xl bg-slate-950 p-4 font-mono text-xs text-emerald-400 overflow-y-auto border border-slate-800/90 whitespace-pre-wrap">
+            <div id="ingestion-console" class="w-full h-56 rounded-xl bg-slate-900 p-4 font-mono text-xs text-emerald-400 overflow-y-auto border border-slate-800 whitespace-pre-wrap">
 AmritaGPT Ingestion Bus ready.
 Incremental embedding cache enabled. Unmodified documents will be skipped automatically.
             </div>
@@ -664,60 +698,60 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       <!-- TAB 6: TELEMETRY & AUDIT LOGS                                       -->
       <!-- =================================================================== -->
       <section id="tab-telemetry" class="tab-content hidden space-y-6">
-        <div class="glass-card rounded-2xl p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-                <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i>
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="activity" class="w-5 h-5 text-indigo-700"></i>
                 <span>Query Telemetry & Audit Trail</span>
               </h2>
-              <p class="text-xs text-slate-400">Real-time observability into institutional questions, latency, and grounding quality</p>
+              <p class="text-xs text-slate-500">Real-time observability into user queries, grounding confidence, and latency</p>
             </div>
 
             <div class="flex items-center space-x-2">
-              <button onclick="runRagBenchmark()" id="btn-benchmark" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-medium flex items-center space-x-1.5 transition-colors">
+              <button onclick="runRagBenchmark()" id="btn-benchmark" class="px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-bold flex items-center space-x-1.5 transition-colors">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                 <span>Run Golden Benchmark</span>
               </button>
-              <button onclick="loadTelemetryLogs()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700 transition-colors">
+              <button onclick="loadTelemetryLogs()" class="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors">
                 Refresh
               </button>
             </div>
           </div>
 
-          <!-- Benchmark Modal / Panel -->
-          <div id="benchmark-results-panel" class="hidden p-4 rounded-xl bg-indigo-950/40 border border-indigo-800/80 space-y-3">
-            <h4 class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Golden RAG Evaluation Benchmark Results</h4>
+          <!-- Benchmark Panel -->
+          <div id="benchmark-results-panel" class="hidden p-4 rounded-xl bg-indigo-50/60 border border-indigo-200 space-y-3">
+            <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Golden RAG Evaluation Benchmark Results</h4>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
-              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-[10px] text-slate-400 uppercase">Recall @ 1</span>
-                <div id="bench-recall1" class="text-base font-bold text-emerald-400">--</div>
+              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 1</span>
+                <div id="bench-recall1" class="text-base font-black text-emerald-700">--</div>
               </div>
-              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-[10px] text-slate-400 uppercase">Recall @ 5</span>
-                <div id="bench-recall5" class="text-base font-bold text-emerald-400">--</div>
+              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 5</span>
+                <div id="bench-recall5" class="text-base font-black text-emerald-700">--</div>
               </div>
-              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-[10px] text-slate-400 uppercase">MRR</span>
-                <div id="bench-mrr" class="text-base font-bold text-cyan-400">--</div>
+              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[10px] text-slate-500 uppercase font-bold">MRR</span>
+                <div id="bench-mrr" class="text-base font-black text-indigo-700">--</div>
               </div>
-              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-[10px] text-slate-400 uppercase">Mean Latency</span>
-                <div id="bench-latency" class="text-base font-bold text-amber-400">--</div>
+              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Mean Latency</span>
+                <div id="bench-latency" class="text-base font-black text-amber-700">--</div>
               </div>
-              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-[10px] text-slate-400 uppercase">Grounded Acc</span>
-                <div id="bench-faithfulness" class="text-base font-bold text-indigo-400">--</div>
+              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <span class="text-[10px] text-slate-500 uppercase font-bold">Grounded Acc</span>
+                <div id="bench-faithfulness" class="text-base font-black text-amrita-800">--</div>
               </div>
             </div>
           </div>
 
           <!-- Telemetry Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-800">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
                 <tr>
-                  <th class="p-3">Time</th>
+                  <th class="p-3">Timestamp</th>
                   <th class="p-3">Query</th>
                   <th class="p-3">Role</th>
                   <th class="p-3">Intent</th>
@@ -727,7 +761,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
                   <th class="p-3">Latency</th>
                 </tr>
               </thead>
-              <tbody id="telemetry-table-body" class="divide-y divide-slate-800">
+              <tbody id="telemetry-table-body" class="divide-y divide-slate-100 bg-white">
                 <!-- Rows inserted dynamically -->
               </tbody>
             </table>
@@ -740,36 +774,35 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       <!-- TAB 7: MCP & DEVELOPER HUB                                          -->
       <!-- =================================================================== -->
       <section id="tab-mcp" class="tab-content hidden space-y-6">
-        <div class="glass-card rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
-              <i data-lucide="cpu" class="w-5 h-5 text-indigo-400"></i>
+        <div class="card-white rounded-2xl p-5 space-y-4">
+          <div class="pb-3 border-b border-slate-100">
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+              <i data-lucide="cpu" class="w-5 h-5 text-amrita-800"></i>
               <span>Model Context Protocol (MCP) Integration Hub</span>
             </h2>
-            <p class="text-xs text-slate-400">Connect Claude Desktop, Cursor, and Antigravity directly to AmritaGPT tools</p>
+            <p class="text-xs text-slate-500">Connect Claude Desktop, Cursor, and Antigravity directly to AmritaGPT tools</p>
           </div>
 
-          <!-- MCP SSE Connection Card -->
-          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <!-- Endpoint Card -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-slate-300">Active MCP SSE Endpoint</span>
-              <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono">200 OK</span>
+              <span class="text-xs font-bold text-slate-700">Live MCP Server SSE Endpoint</span>
+              <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono font-bold">200 OK</span>
             </div>
             <div class="flex items-center space-x-2">
-              <input type="text" readonly id="mcp-url-input" value="http://localhost:8000/mcp/sse" class="flex-1 bg-slate-950 text-indigo-300 font-mono text-xs px-3.5 py-2 rounded-lg border border-slate-800">
-              <button onclick="copyMcpUrl()" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center space-x-1 transition-colors">
+              <input type="text" readonly id="mcp-url-input" value="http://localhost:8000/mcp/sse" class="flex-1 bg-white text-amrita-800 font-mono font-bold text-xs px-3.5 py-2 rounded-lg border border-slate-200">
+              <button onclick="copyMcpUrl()" class="px-3.5 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1 transition-colors">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 <span id="copy-btn-text">Copy</span>
               </button>
             </div>
           </div>
 
-          <!-- Configuration Blocks -->
+          <!-- Config Blocks -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Claude Desktop Config -->
-            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-              <span class="text-xs font-semibold text-slate-300">Claude Desktop / Antigravity Config (SSE)</span>
-              <pre class="bg-slate-950 p-3 rounded-lg text-[11px] text-slate-300 font-mono overflow-x-auto border border-slate-800/80"><code>{
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-800">Claude Desktop / Antigravity Config (SSE)</span>
+              <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
   "mcpServers": {
     "amritagpt": {
       "url": "http://localhost:8000/mcp/sse",
@@ -779,10 +812,9 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
 }</code></pre>
             </div>
 
-            <!-- Stdio Config -->
-            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-              <span class="text-xs font-semibold text-slate-300">Stdio Local Process Config</span>
-              <pre class="bg-slate-950 p-3 rounded-lg text-[11px] text-slate-300 font-mono overflow-x-auto border border-slate-800/80"><code>{
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-800">Stdio Local Process Config</span>
+              <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
   "mcpServers": {
     "amritagpt": {
       "command": "python",
@@ -796,42 +828,18 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
             </div>
           </div>
 
-          <!-- MCP Tools Exposed -->
-          <div class="space-y-3 pt-2">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Available MCP Tools</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="font-mono text-xs text-indigo-400 font-semibold">search_institutional_knowledge</div>
-                <p class="text-xs text-slate-400">Hybrid semantic search across syllabus, regulations, policies, and faculty records.</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="font-mono text-xs text-indigo-400 font-semibold">ask_grounded_question</div>
-                <p class="text-xs text-slate-400">Answers questions strictly grounded in institutional documents with citations.</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="font-mono text-xs text-indigo-400 font-semibold">search_policies_regulations</div>
-                <p class="text-xs text-slate-400">Direct lookup for university regulations, ordinances, and administrative guidelines.</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="font-mono text-xs text-indigo-400 font-semibold">search_document_catalog</div>
-                <p class="text-xs text-slate-400">Finds official institutional files by name, department, or keywords.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- API Links -->
-          <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-4 text-xs">
-            <a href="/docs" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+          <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold">
+            <a href="/docs" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
               <span>Interactive Swagger UI</span>
-              <i data-lucide="external-link" class="w-3 h-3"></i>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             </a>
-            <a href="/redoc" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+            <a href="/redoc" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
               <span>ReDoc Specification</span>
-              <i data-lucide="external-link" class="w-3 h-3"></i>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             </a>
-            <a href="/openapi.json" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+            <a href="/openapi.json" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
               <span>OpenAPI 3.1 JSON</span>
-              <i data-lucide="file-code" class="w-3 h-3"></i>
+              <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
             </a>
           </div>
         </div>
@@ -841,20 +849,126 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
   </div>
 
   <!-- ========================================================================= -->
-  <!-- Document Detail Modal                                                     -->
+  <!-- MODAL: ADD / UPLOAD NEW DOCUMENT                                          -->
   <!-- ========================================================================= -->
-  <div id="doc-detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-    <div class="glass-card rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-700 shadow-2xl">
-      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+  <div id="upload-doc-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h3 id="modal-doc-title" class="text-sm font-semibold text-white">Document Details</h3>
-          <p id="modal-doc-meta" class="text-xs text-slate-400">Department • Category</p>
+          <h3 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="upload-cloud" class="w-5 h-5 text-amrita-800"></i>
+            <span>Upload & Index Document</span>
+          </h3>
+          <p class="text-xs text-slate-500">File will be parsed, chunked, and added to dual indices immediately</p>
         </div>
-        <button onclick="closeDocModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+        <button onclick="closeUploadModal()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <div id="modal-doc-body" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-300">
+
+      <form id="upload-form" onsubmit="handleUploadSubmit(event)" class="p-5 space-y-4 text-xs">
+        
+        <!-- File Picker -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Select File (PDF, DOCX, XLSX, PPTX, TXT)</label>
+          <input type="file" id="upload-file-input" required class="w-full text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-amrita-800 hover:file:bg-rose-100 border border-slate-200 rounded-xl p-2 bg-slate-50 cursor-pointer">
+        </div>
+
+        <!-- Department Input -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Target Department</label>
+            <input type="text" id="upload-dept-input" required value="Academic Admin Office" placeholder="e.g. Academic Admin Office" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Category (Optional)</label>
+            <input type="text" id="upload-cat-input" placeholder="e.g. Academic Regulations" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+          </div>
+        </div>
+
+        <!-- Year & Access Policy -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Academic Year</label>
+            <input type="text" id="upload-year-input" placeholder="e.g. 2025-26" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Access Policy Tier</label>
+            <select id="upload-policy-select" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 font-semibold">
+              <option value="student">Student (Students + Faculty + Admin)</option>
+              <option value="faculty">Faculty (Faculty + Admin Only)</option>
+              <option value="admin">Admin Only (Confidential/HR)</option>
+              <option value="public">Public (Open to All)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Upload Status Feedback -->
+        <div id="upload-feedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+
+        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeUploadModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">Cancel</button>
+          <button type="submit" id="btn-upload-submit" class="px-5 py-2 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white font-bold flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Upload & Index Now</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADMIN ACCESS KEY AUTHENTICATION                                    -->
+  <!-- ========================================================================= -->
+  <div id="admin-key-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-amrita-800"></i>
+            <span>Administrator Verification</span>
+          </h3>
+          <p class="text-xs text-slate-500">Enter administrator credentials to unlock production controls</p>
+        </div>
+        <button onclick="closeAdminKeyModal()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Administrative Security Key</label>
+          <input type="password" id="input-admin-key" placeholder="Enter AmritaGPT admin key..." class="w-full bg-slate-50 text-slate-900 text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white font-mono">
+        </div>
+
+        <div id="admin-auth-feedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+
+        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+          <button onclick="closeAdminKeyModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">Cancel</button>
+          <button onclick="verifyAdminKeySubmit()" class="px-5 py-2 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white font-bold flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Authenticate Session</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: DOCUMENT DETAIL INSPECTOR                                          -->
+  <!-- ========================================================================= -->
+  <div id="doc-detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-200 shadow-2xl">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 id="modal-doc-title" class="text-sm font-extrabold text-slate-900">Document Details</h3>
+          <p id="modal-doc-meta" class="text-xs text-slate-500">Department • Category</p>
+        </div>
+        <button onclick="closeDocModal()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modal-doc-body" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-700">
         <!-- Sections populated dynamically -->
       </div>
     </div>
@@ -864,7 +978,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
   <!-- Client JavaScript Logic                                                   -->
   <!-- ========================================================================= -->
   <script>
-    let activeRole = 'student';
+    let activeRole = 'admin';
     let deptChart = null;
     let accessChart = null;
     let allDocumentsCache = [];
@@ -872,9 +986,28 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     const docPageSize = 15;
     let currentEvidenceData = [];
 
+    // Session Admin Key Storage
+    function getAdminKey() {
+      return sessionStorage.getItem('amritagpt_admin_key') || 'amrita-admin-2026';
+    }
+
+    function checkAdminSessionUI() {
+      const key = sessionStorage.getItem('amritagpt_admin_key');
+      const label = document.getElementById('admin-auth-label');
+      const btn = document.getElementById('btn-admin-auth');
+      if (key) {
+        label.textContent = 'Admin Authenticated';
+        btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+      } else {
+        label.textContent = 'Unlock Admin Access';
+        btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-amrita-800 border border-rose-200 hover:bg-rose-100';
+      }
+    }
+
     // Initialize Dashboard
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      checkAdminSessionUI();
       refreshDashboardStats();
       loadTelemetryLogs();
       loadDocuments();
@@ -884,8 +1017,8 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
-        btn.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
+        btn.classList.remove('bg-amrita-900', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
       });
 
       const activeSection = document.getElementById(`tab-${tabId}`);
@@ -893,13 +1026,12 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
 
       const activeBtn = document.getElementById(`nav-${tabId}`);
       if (activeBtn) {
-        activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
-        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+        activeBtn.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
+        activeBtn.classList.add('bg-amrita-900', 'text-white', 'shadow-sm');
       }
 
       lucide.createIcons();
 
-      // Lazy refresh for specific tabs
       if (tabId === 'telemetry') loadTelemetryLogs();
       if (tabId === 'documents') loadDocuments();
     }
@@ -923,16 +1055,14 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         document.getElementById('stat-chunks').textContent = (statsRes.total_chunks || 0).toLocaleString();
         document.getElementById('stat-grounding').textContent = Math.round((statsRes.avg_grounding_score || 0.92) * 100) + '%';
         document.getElementById('stat-latency').textContent = Math.round(statsRes.avg_query_latency_ms || 3200) + ' ms';
+        document.getElementById('sidebar-doc-count').textContent = statsRes.total_documents || 0;
 
         document.getElementById('system-status-pill').textContent = healthRes.status === 'healthy' 
           ? `Online • ${statsRes.total_documents} Docs • ${statsRes.total_chunks} Chunks`
           : 'Degraded';
 
-        // Update charts
         renderDeptChart(statsRes.departments || {});
         renderAccessChart(statsRes.access_distribution || {});
-
-        // Populate department dropdown filters
         populateDeptDropdowns(Object.keys(statsRes.departments || {}));
       } catch (err) {
         console.error('Failed to load stats:', err);
@@ -956,7 +1086,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       });
     }
 
-    // Render Department Bar Chart
+    // Department Bar Chart
     function renderDeptChart(depts) {
       const ctx = document.getElementById('deptChart');
       if (!ctx) return;
@@ -975,8 +1105,8 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           datasets: [{
             label: 'Documents',
             data: data,
-            backgroundColor: 'rgba(99, 102, 241, 0.75)',
-            hoverBackgroundColor: 'rgba(129, 140, 248, 0.9)',
+            backgroundColor: 'rgba(190, 18, 60, 0.85)', // Amrita Crimson
+            hoverBackgroundColor: 'rgba(159, 18, 57, 1)',
             borderRadius: 6,
             borderSkipped: false
           }]
@@ -990,18 +1120,18 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: '#94a3b8', font: { size: 10 } }
+              ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }
             },
             y: {
-              grid: { color: 'rgba(30, 41, 59, 0.6)' },
-              ticks: { color: '#94a3b8', font: { size: 10 } }
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#64748b', font: { size: 10 } }
             }
           }
         }
       });
     }
 
-    // Render Access Distribution Doughnut Chart
+    // Access Distribution Doughnut Chart
     function renderAccessChart(accessDist) {
       const ctx = document.getElementById('accessChart');
       if (!ctx) return;
@@ -1018,13 +1148,13 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           datasets: [{
             data: data,
             backgroundColor: [
-              'rgba(239, 68, 68, 0.8)',   // admin: red
-              'rgba(168, 85, 247, 0.8)',  // faculty: purple
-              'rgba(59, 130, 246, 0.8)',   // student: blue
-              'rgba(16, 185, 129, 0.8)'   // public: green
+              '#e11d48', // admin: rose
+              '#7c3aed', // faculty: purple
+              '#2563eb', // student: blue
+              '#059669'  // public: emerald
             ],
-            borderColor: '#111827',
-            borderWidth: 2
+            borderColor: '#ffffff',
+            borderWidth: 3
           }]
         },
         options: {
@@ -1033,12 +1163,316 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#cbd5e1', font: { size: 11 }, boxWidth: 12 }
+              labels: { color: '#334155', font: { size: 11, weight: 'bold' }, boxWidth: 12 }
             }
           },
-          cutout: '70%'
+          cutout: '72%'
         }
       });
+    }
+
+    // =========================================================================
+    // Document Catalog Management (View, Upload, Delete, Edit)
+    // =========================================================================
+    async function loadDocuments() {
+      try {
+        const res = await fetch('/api/v1/documents?limit=400');
+        if (!res.ok) throw new Error('Failed to fetch documents');
+        const data = await res.json();
+        allDocumentsCache = data.documents || [];
+        renderDocumentsTable();
+      } catch (err) {
+        console.error('Failed to load documents:', err);
+      }
+    }
+
+    function filterDocumentsCatalog() {
+      docCurrentPage = 1;
+      renderDocumentsTable();
+    }
+
+    function renderDocumentsTable() {
+      const q = (document.getElementById('doc-search-query')?.value || '').toLowerCase();
+      const dept = document.getElementById('doc-dept-select')?.value || '';
+      const access = document.getElementById('doc-access-select')?.value || '';
+
+      const filtered = allDocumentsCache.filter(d => {
+        const matchesQ = !q || (d.filename && d.filename.toLowerCase().includes(q)) || (d.category && d.category.toLowerCase().includes(q));
+        const matchesDept = !dept || d.department === dept;
+        const matchesAccess = !access || d.access_policy === access;
+        return matchesQ && matchesDept && matchesAccess;
+      });
+
+      document.getElementById('doc-showing-count').textContent = filtered.length;
+      const totalPages = Math.ceil(filtered.length / docPageSize) || 1;
+      document.getElementById('doc-page-info').textContent = `Page ${docCurrentPage} of ${totalPages}`;
+      document.getElementById('doc-prev-page').disabled = docCurrentPage <= 1;
+      document.getElementById('doc-next-page').disabled = docCurrentPage >= totalPages;
+
+      const paged = filtered.slice((docCurrentPage - 1) * docPageSize, docCurrentPage * docPageSize);
+      const tbody = document.getElementById('documents-table-body');
+      tbody.innerHTML = '';
+
+      if (paged.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">No matching institutional documents found.</td></tr>`;
+        return;
+      }
+
+      paged.forEach(doc => {
+        const policyClass = {
+          'admin': 'bg-rose-50 text-amrita-800 border-rose-200',
+          'faculty': 'bg-purple-50 text-purple-700 border-purple-200',
+          'student': 'bg-blue-50 text-blue-700 border-blue-200',
+          'public': 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        }[doc.access_policy] || 'bg-slate-100 text-slate-700 border-slate-200';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition-colors';
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="file-text" class="w-4 h-4 text-amrita-700 shrink-0"></i>
+            <span class="truncate max-w-xs" title="${doc.filename}">${doc.filename}</span>
+          </td>
+          <td class="p-3 text-slate-600 truncate max-w-[140px]">${doc.department}</td>
+          <td class="p-3 text-slate-600 truncate max-w-[140px]">${doc.category}</td>
+          <td class="p-3 text-slate-500 font-mono text-[11px]">${doc.academic_year || doc.version || 'current'}</td>
+          <td class="p-3 text-slate-500 font-mono font-bold">${doc.section_count || doc.sections || '--'}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${policyClass}">${doc.access_policy}</span>
+          </td>
+          <td class="p-3 text-right">
+            <div class="flex items-center justify-end space-x-1">
+              <button onclick="viewDocumentDetail('${doc.doc_id}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]" title="Inspect Content Sections">
+                Inspect
+              </button>
+              <a href="/api/v1/documents/${doc.doc_id}/download" download class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600" title="Download Source File">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </a>
+              <button onclick="promptEditMetadata('${doc.doc_id}', '${doc.access_policy}', '${doc.department}')" class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-indigo-600" title="Edit Access Policy">
+                <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="confirmDeleteDocument('${doc.doc_id}', '${doc.filename.replace(/'/g, "\\'")}')" class="p-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-600" title="Delete Document Permanently">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function changeDocPage(delta) {
+      docCurrentPage += delta;
+      renderDocumentsTable();
+    }
+
+    // Modal: Open & Close Upload
+    function openUploadModal() {
+      document.getElementById('upload-doc-modal').classList.remove('hidden');
+    }
+    function closeUploadModal() {
+      document.getElementById('upload-doc-modal').classList.add('hidden');
+      document.getElementById('upload-feedback').classList.add('hidden');
+    }
+
+    // Handle Upload & Indexing
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('upload-file-input');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please choose a file to upload.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const dept = document.getElementById('upload-dept-input').value;
+      const cat = document.getElementById('upload-cat-input').value;
+      const year = document.getElementById('upload-year-input').value;
+      const policy = document.getElementById('upload-policy-select').value;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('department', dept);
+      if (cat) formData.append('category', cat);
+      if (year) formData.append('academic_year', year);
+      formData.append('access_policy', policy);
+
+      const btn = document.getElementById('btn-upload-submit');
+      const feedback = document.getElementById('upload-feedback');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Parsing & Indexing...</span>`;
+      lucide.createIcons();
+
+      feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200';
+      feedback.textContent = `Uploading '${file.name}' and computing incremental embeddings...`;
+      feedback.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/v1/documents/upload', {
+          method: 'POST',
+          headers: {
+            'X-Admin-Key': getAdminKey()
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Upload failed');
+
+        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        feedback.textContent = `✓ Document successfully indexed! ${data.sections_extracted} sections, ${data.chunks_indexed} new chunks embedded.`;
+
+        // Refresh docs and stats
+        setTimeout(() => {
+          closeUploadModal();
+          loadDocuments();
+          refreshDashboardStats();
+        }, 1200);
+
+      } catch (err) {
+        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200';
+        feedback.textContent = `Error: ${err.message}`;
+        if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
+          openAdminKeyModal();
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="upload" class="w-3.5 h-3.5"></i><span>Upload & Index Now</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // Delete Document
+    async function confirmDeleteDocument(docId, filename) {
+      if (!confirm(`Are you sure you want to permanently delete "${filename}" and remove all its chunks from the search indices?`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/documents/${docId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-Admin-Key': getAdminKey()
+          }
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Delete failed');
+
+        alert(`✓ Successfully deleted "${filename}".`);
+        loadDocuments();
+        refreshDashboardStats();
+      } catch (err) {
+        alert('Failed to delete document: ' + err.message);
+        if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
+          openAdminKeyModal();
+        }
+      }
+    }
+
+    // Edit Document Access Policy
+    async function promptEditMetadata(docId, currentPolicy, currentDept) {
+      const newPolicy = prompt(`Update Access Policy for this document:\n(options: public, student, faculty, admin)`, currentPolicy);
+      if (!newPolicy || newPolicy === currentPolicy) return;
+
+      try {
+        const res = await fetch(`/api/v1/documents/${docId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getAdminKey()
+          },
+          body: JSON.stringify({ access_policy: newPolicy.toLowerCase().trim() })
+        });
+
+        if (!res.ok) throw new Error('Failed to update access policy');
+        alert('✓ Access policy updated successfully.');
+        loadDocuments();
+        refreshDashboardStats();
+      } catch (err) {
+        alert('Update error: ' + err.message);
+      }
+    }
+
+    // Admin Auth Modal
+    function openAdminKeyModal() {
+      document.getElementById('admin-key-modal').classList.remove('hidden');
+    }
+    function closeAdminKeyModal() {
+      document.getElementById('admin-key-modal').classList.add('hidden');
+      document.getElementById('admin-auth-feedback').classList.add('hidden');
+    }
+
+    async function verifyAdminKeySubmit() {
+      const key = document.getElementById('input-admin-key').value.trim();
+      const feedback = document.getElementById('admin-auth-feedback');
+      if (!key) return;
+
+      try {
+        const res = await fetch('/api/v1/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin_key: key })
+        });
+
+        if (!res.ok) throw new Error('Invalid administrative key');
+        sessionStorage.setItem('amritagpt_admin_key', key);
+        checkAdminSessionUI();
+
+        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        feedback.textContent = '✓ Administrator credentials verified for this session!';
+        feedback.classList.remove('hidden');
+
+        setTimeout(closeAdminKeyModal, 800);
+      } catch (err) {
+        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200';
+        feedback.textContent = err.message;
+        feedback.classList.remove('hidden');
+      }
+    }
+
+    // Inspect Document Detail Modal
+    async function viewDocumentDetail(docId) {
+      try {
+        const res = await fetch(`/api/v1/documents/${docId}`);
+        if (!res.ok) throw new Error('Could not fetch document details');
+        const doc = await res.json();
+
+        document.getElementById('modal-doc-title').textContent = doc.filename;
+        document.getElementById('modal-doc-meta').textContent = `${doc.department} • ${doc.category} • Year: ${doc.academic_year || 'N/A'} • Access: ${doc.access_policy.toUpperCase()}`;
+
+        const body = document.getElementById('modal-doc-body');
+        body.innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between font-medium">
+            <span>Doc ID: <strong class="text-amrita-800 font-mono">${doc.doc_id}</strong></span>
+            <span>Total Sections: <strong class="text-emerald-700">${doc.total_sections}</strong></span>
+          </div>
+          <div class="space-y-3 pt-2">
+            <h4 class="text-xs uppercase tracking-wider text-slate-500 font-bold">Extracted Hierarchical Sections</h4>
+            ${doc.sections.map(s => `
+              <div class="p-3 rounded-xl bg-white border border-slate-200 space-y-1 shadow-sm">
+                <div class="flex justify-between font-bold text-slate-900">
+                  <span>${s.section_title}</span>
+                  ${s.page ? `<span class="text-slate-500 text-[11px] font-normal">Page ${s.page}</span>` : ''}
+                </div>
+                <div class="text-slate-700 font-mono text-[11px] bg-slate-50 p-2.5 rounded-lg whitespace-pre-wrap max-h-44 overflow-y-auto border border-slate-100">
+                  ${s.raw_content}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        document.getElementById('doc-detail-modal').classList.remove('hidden');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function closeDocModal() {
+      document.getElementById('doc-detail-modal').classList.add('hidden');
     }
 
     // Grounded Q&A Studio Execution
@@ -1075,34 +1509,29 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         if (!res.ok) throw new Error(`Server returned ${res.status}`);
         const data = await res.json();
 
-        // Render Grounding & Intent
         document.getElementById('chat-intent-badge').textContent = data.intent || 'Institutional Query';
         document.getElementById('chat-latency-badge').textContent = `${Math.round(data.latency_ms)} ms`;
         
         const scorePct = Math.round((data.grounding_score || 0) * 100);
         const scoreElem = document.getElementById('chat-grounding-score');
         scoreElem.textContent = `${scorePct}%`;
-        scoreElem.className = scorePct >= 80 ? 'font-bold text-emerald-400' : 'font-bold text-amber-400';
+        scoreElem.className = scorePct >= 80 ? 'font-black text-emerald-700' : 'font-black text-amber-700';
 
-        // Render Markdown Answer
-        const rawAnswer = data.answer || 'No answer generated.';
-        document.getElementById('chat-answer-body').innerHTML = marked.parse(rawAnswer);
+        document.getElementById('chat-answer-body').innerHTML = marked.parse(data.answer || 'No answer generated.');
 
-        // Render Citations
         const citationsList = document.getElementById('chat-citations-list');
         citationsList.innerHTML = '';
         if (data.citations && data.citations.length > 0) {
           data.citations.forEach(c => {
             const div = document.createElement('div');
-            div.className = 'p-2 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[11px]';
+            div.className = 'p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 font-mono text-[11px]';
             div.innerHTML = marked.parse(c);
             citationsList.appendChild(div);
           });
         } else {
-          citationsList.innerHTML = '<span class="text-slate-500 italic">No explicit citations recorded.</span>';
+          citationsList.innerHTML = '<span class="text-slate-400 italic">No explicit citations recorded.</span>';
         }
 
-        // Render Evidence Sources
         currentEvidenceData = data.sources || [];
         document.getElementById('chat-source-count').textContent = currentEvidenceData.length;
         renderEvidenceSources(currentEvidenceData);
@@ -1111,7 +1540,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         alert('Failed to generate answer: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Generate</span>`;
+        btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Ask AmritaGPT</span>`;
         lucide.createIcons();
       }
     }
@@ -1132,28 +1561,28 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       const container = document.getElementById('evidence-accordion-body');
       container.innerHTML = '';
       if (!sources || sources.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 italic">No retrieved source candidates.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 italic">No retrieved source candidates.</p>';
         return;
       }
 
       sources.forEach(s => {
         const item = document.createElement('div');
-        item.className = 'p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5';
+        item.className = 'p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5';
         item.innerHTML = `
-          <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-indigo-300 flex items-center space-x-1">
-              <span class="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800 text-[10px] font-mono">Source [${s.source_num}]</span>
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="text-amrita-900 flex items-center space-x-1">
+              <span class="px-1.5 py-0.5 rounded bg-rose-100 text-amrita-900 text-[10px] font-mono">Source [${s.source_num}]</span>
               <span class="truncate max-w-sm">${s.filename}</span>
             </span>
-            <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-[10px] font-mono">Rerank: ${s.rerank_score}</span>
+            <span class="px-2 py-0.5 rounded bg-white text-indigo-700 text-[10px] font-mono border border-indigo-100">Rerank: ${s.rerank_score}</span>
           </div>
-          <div class="flex flex-wrap gap-2 text-[11px] text-slate-400">
-            <span>Dept: <strong class="text-slate-300">${s.department}</strong></span>
+          <div class="flex flex-wrap gap-2 text-[11px] text-slate-600">
+            <span>Dept: <strong class="text-slate-800">${s.department}</strong></span>
             <span>•</span>
-            <span>Section: <strong class="text-slate-300">${s.section}</strong></span>
-            ${s.page ? `<span>•</span><span>Page: <strong class="text-slate-300">${s.page}</strong></span>` : ''}
+            <span>Section: <strong class="text-slate-800">${s.section}</strong></span>
+            ${s.page ? `<span>•</span><span>Page: <strong class="text-slate-800">${s.page}</strong></span>` : ''}
             <span>•</span>
-            <span>Policy: <strong class="text-indigo-300 uppercase">${s.access_policy}</strong></span>
+            <span>Policy: <strong class="text-amrita-800 uppercase font-bold">${s.access_policy}</strong></span>
           </div>
         `;
         container.appendChild(item);
@@ -1192,15 +1621,15 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
 
         data.sources.forEach((s, idx) => {
           const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-900/50 transition-colors';
+          tr.className = 'hover:bg-slate-50 transition-colors';
           tr.innerHTML = `
-            <td class="p-3 font-mono font-bold text-cyan-400">#${idx + 1}</td>
-            <td class="p-3 font-medium text-slate-200 truncate max-w-xs">${s.filename}</td>
-            <td class="p-3 text-slate-400">${s.department}</td>
-            <td class="p-3 text-slate-400">${s.section} ${s.page ? `(p. ${s.page})` : ''}</td>
-            <td class="p-3 font-mono text-emerald-400">${s.rerank_score}</td>
+            <td class="p-3 font-mono font-bold text-indigo-700">#${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-900 truncate max-w-xs">${s.filename}</td>
+            <td class="p-3 text-slate-600">${s.department}</td>
+            <td class="p-3 text-slate-600">${s.section} ${s.page ? `(p. ${s.page})` : ''}</td>
+            <td class="p-3 font-mono font-bold text-emerald-700">${s.rerank_score}</td>
             <td class="p-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-indigo-300 border border-slate-700">${s.access_policy}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">${s.access_policy}</span>
             </td>
           `;
           tbody.appendChild(tr);
@@ -1209,141 +1638,6 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       } catch (err) {
         alert('Retrieval inspection failed: ' + err.message);
       }
-    }
-
-    // Document Catalog
-    async function loadDocuments() {
-      try {
-        const res = await fetch('/api/v1/documents?limit=300');
-        if (!res.ok) {
-          // Fallback to searching with empty query if endpoint pending
-          const fallback = await fetch('/api/v1/search/documents', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ query: '', role: 'admin' })
-          }).then(r => r.json());
-          allDocumentsCache = fallback.documents || [];
-        } else {
-          const data = await res.json();
-          allDocumentsCache = data.documents || [];
-        }
-        renderDocumentsTable();
-      } catch (err) {
-        console.error('Failed to load documents:', err);
-      }
-    }
-
-    function filterDocumentsCatalog() {
-      docCurrentPage = 1;
-      renderDocumentsTable();
-    }
-
-    function renderDocumentsTable() {
-      const q = (document.getElementById('doc-search-query')?.value || '').toLowerCase();
-      const dept = document.getElementById('doc-dept-select')?.value || '';
-      const access = document.getElementById('doc-access-select')?.value || '';
-
-      const filtered = allDocumentsCache.filter(d => {
-        const matchesQ = !q || (d.filename && d.filename.toLowerCase().includes(q)) || (d.category && d.category.toLowerCase().includes(q));
-        const matchesDept = !dept || d.department === dept;
-        const matchesAccess = !access || d.access_policy === access;
-        return matchesQ && matchesDept && matchesAccess;
-      });
-
-      document.getElementById('doc-showing-count').textContent = filtered.length;
-      const totalPages = Math.ceil(filtered.length / docPageSize) || 1;
-      document.getElementById('doc-page-info').textContent = `Page ${docCurrentPage} of ${totalPages}`;
-      document.getElementById('doc-prev-page').disabled = docCurrentPage <= 1;
-      document.getElementById('doc-next-page').disabled = docCurrentPage >= totalPages;
-
-      const paged = filtered.slice((docCurrentPage - 1) * docPageSize, docCurrentPage * docPageSize);
-      const tbody = document.getElementById('documents-table-body');
-      tbody.innerHTML = '';
-
-      if (paged.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 italic">No matching institutional documents found.</td></tr>`;
-        return;
-      }
-
-      paged.forEach(doc => {
-        const policyClass = {
-          'admin': 'bg-red-950/80 text-red-300 border-red-800',
-          'faculty': 'bg-purple-950/80 text-purple-300 border-purple-800',
-          'student': 'bg-blue-950/80 text-blue-300 border-blue-800',
-          'public': 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
-        }[doc.access_policy] || 'bg-slate-800 text-slate-300 border-slate-700';
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-900/50 transition-colors';
-        tr.innerHTML = `
-          <td class="p-3 font-medium text-slate-200 flex items-center space-x-2">
-            <i data-lucide="file" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
-            <span class="truncate max-w-xs" title="${doc.filename}">${doc.filename}</span>
-          </td>
-          <td class="p-3 text-slate-400 truncate max-w-[140px]">${doc.department}</td>
-          <td class="p-3 text-slate-400 truncate max-w-[140px]">${doc.category}</td>
-          <td class="p-3 text-slate-400 font-mono text-[11px]">${doc.academic_year || doc.version || 'current'}</td>
-          <td class="p-3 text-slate-400 font-mono">${doc.section_count || doc.sections || '--'}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${policyClass}">${doc.access_policy}</span>
-          </td>
-          <td class="p-3 text-right">
-            <button onclick="viewDocumentDetail('${doc.doc_id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium text-[11px] transition-colors">
-              Inspect
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      lucide.createIcons();
-    }
-
-    function changeDocPage(delta) {
-      docCurrentPage += delta;
-      renderDocumentsTable();
-    }
-
-    // View Document Detail Modal
-    async function viewDocumentDetail(docId) {
-      try {
-        const res = await fetch(`/api/v1/documents/${docId}`);
-        if (!res.ok) throw new Error('Could not fetch document details');
-        const doc = await res.json();
-
-        document.getElementById('modal-doc-title').textContent = doc.filename;
-        document.getElementById('modal-doc-meta').textContent = `${doc.department} • ${doc.category} • Year: ${doc.academic_year || 'N/A'} • Access: ${doc.access_policy.toUpperCase()}`;
-
-        const body = document.getElementById('modal-doc-body');
-        body.innerHTML = `
-          <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between">
-            <span>Doc ID: <strong class="text-indigo-300 font-mono">${doc.doc_id}</strong></span>
-            <span>Total Sections: <strong class="text-emerald-400">${doc.total_sections}</strong></span>
-          </div>
-          <div class="space-y-3 pt-2">
-            <h4 class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Parsed Content Sections</h4>
-            ${doc.sections.map(s => `
-              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="flex justify-between font-semibold text-slate-200">
-                  <span>${s.section_title}</span>
-                  ${s.page ? `<span class="text-slate-400 text-[11px]">Page ${s.page}</span>` : ''}
-                </div>
-                <div class="text-slate-300 font-mono text-[11px] bg-slate-950 p-2 rounded whitespace-pre-wrap max-h-40 overflow-y-auto">
-                  ${s.raw_content}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-
-        document.getElementById('doc-detail-modal').classList.remove('hidden');
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    function closeDocModal() {
-      document.getElementById('doc-detail-modal').classList.add('hidden');
     }
 
     // Compare Documents
@@ -1370,15 +1664,15 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         const container = document.getElementById('compare-results');
         container.classList.remove('hidden');
         container.innerHTML = `
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-            <div class="font-semibold text-indigo-400">${data.doc_1.filename}</div>
-            <div class="text-xs text-slate-400">AY: ${data.doc_1.academic_year || 'N/A'} • Matched Sections: ${data.doc_1.sections_matched}</div>
-            <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded font-mono whitespace-pre-wrap">${data.doc_1.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="font-bold text-amrita-900">${data.doc_1.filename}</div>
+            <div class="text-xs text-slate-500 font-medium">AY: ${data.doc_1.academic_year || 'N/A'} • Matched Sections: ${data.doc_1.sections_matched}</div>
+            <div class="text-xs text-slate-800 bg-white p-3 rounded-lg font-mono whitespace-pre-wrap border border-slate-200 max-h-56 overflow-y-auto">${data.doc_1.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
           </div>
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-            <div class="font-semibold text-cyan-400">${data.doc_2.filename}</div>
-            <div class="text-xs text-slate-400">AY: ${data.doc_2.academic_year || 'N/A'} • Matched Sections: ${data.doc_2.sections_matched}</div>
-            <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded font-mono whitespace-pre-wrap">${data.doc_2.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="font-bold text-indigo-800">${data.doc_2.filename}</div>
+            <div class="text-xs text-slate-500 font-medium">AY: ${data.doc_2.academic_year || 'N/A'} • Matched Sections: ${data.doc_2.sections_matched}</div>
+            <div class="text-xs text-slate-800 bg-white p-3 rounded-lg font-mono whitespace-pre-wrap border border-slate-200 max-h-56 overflow-y-auto">${data.doc_2.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
           </div>
         `;
       } catch (err) {
@@ -1405,24 +1699,31 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       try {
         const res = await fetch('/api/v1/ingestion/run', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getAdminKey()
+          },
           body: JSON.stringify({ force_reindex: force, max_files: maxFiles })
         });
 
         const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed to trigger ingestion');
+
         log.textContent += `[${new Date().toLocaleTimeString()}] Pipeline started: ${data.message || 'Running in background'}\n`;
         document.getElementById('ingestion-live-status-badge').textContent = 'Running';
-        document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-amber-950 text-amber-400 border border-amber-800 font-medium animate-pulse';
+        document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-amber-100 text-amber-800 border border-amber-300 font-bold animate-pulse';
 
-        // Start polling status
         if (ingestPollInterval) clearInterval(ingestPollInterval);
         ingestPollInterval = setInterval(pollIngestionStatus, 2000);
 
       } catch (err) {
-        log.textContent += `[Error] Failed to trigger ingestion: ${err.message}\n`;
+        log.textContent += `[Error] ${err.message}\n`;
         btn.disabled = false;
         btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
         lucide.createIcons();
+        if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
+          openAdminKeyModal();
+        }
       }
     }
 
@@ -1437,7 +1738,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           ingestPollInterval = null;
 
           document.getElementById('ingestion-live-status-badge').textContent = 'Completed';
-          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 font-medium';
+          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold';
           
           log.textContent += `\n[${new Date().toLocaleTimeString()}] INGESTION COMPLETED!\n` +
             `• Files scanned: ${status.last_result?.total_files_scanned || '--'}\n` +
@@ -1457,14 +1758,14 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           clearInterval(ingestPollInterval);
           ingestPollInterval = null;
           document.getElementById('ingestion-live-status-badge').textContent = 'Failed';
-          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-red-950 text-red-400 border border-red-800 font-medium';
-          log.textContent += `\n[Error] ${status.error || 'Ingestion encountered an error'}\n`;
+          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-rose-100 text-rose-800 border border-rose-300 font-bold';
+          log.textContent += `\n[Error] ${status.error || 'Ingestion error'}\n`;
           const btn = document.getElementById('btn-trigger-ingestion');
           btn.disabled = false;
           btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
           lucide.createIcons();
         } else {
-          log.textContent += `[${new Date().toLocaleTimeString()}] ${status.progress_message || 'Processing files...'}\n`;
+          log.textContent += `[${new Date().toLocaleTimeString()}] ${status.progress_message || 'Processing...'}\n`;
         }
       } catch (err) {
         console.error('Poll error:', err);
@@ -1475,7 +1776,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       document.getElementById('ingestion-console').textContent = '';
     }
 
-    // Telemetry & Audit Logs
+    // Telemetry Logs
     async function loadTelemetryLogs() {
       try {
         const res = await fetch('/api/v1/system/telemetry?limit=30');
@@ -1486,22 +1787,22 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         tbody.innerHTML = '';
 
         if (!logs || logs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 italic">No query telemetry recorded yet.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400 italic">No query telemetry recorded yet.</td></tr>`;
           return;
         }
 
         logs.forEach(log => {
           const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-900/50 transition-colors';
+          tr.className = 'hover:bg-slate-50 transition-colors';
           tr.innerHTML = `
-            <td class="p-3 font-mono text-[11px] text-slate-400">${(log.timestamp || '').split(' ')[1] || log.timestamp}</td>
-            <td class="p-3 font-medium text-slate-200 truncate max-w-xs">${log.query}</td>
-            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] uppercase font-semibold bg-slate-800 text-indigo-300 border border-slate-700">${log.role}</span></td>
-            <td class="p-3 text-slate-400">${log.detected_intent || 'General'}</td>
-            <td class="p-3 font-mono text-slate-400">${log.dense_hits}</td>
-            <td class="p-3 font-mono text-slate-400">${log.bm25_hits}</td>
-            <td class="p-3 font-mono text-emerald-400">${Math.round((log.grounding_score || 0) * 100)}%</td>
-            <td class="p-3 font-mono text-amber-400">${Math.round(log.latency_ms)} ms</td>
+            <td class="p-3 font-mono text-[11px] text-slate-500">${(log.timestamp || '').split(' ')[1] || log.timestamp}</td>
+            <td class="p-3 font-semibold text-slate-900 truncate max-w-xs">${log.query}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-slate-100 text-slate-700 border border-slate-200">${log.role}</span></td>
+            <td class="p-3 text-slate-600">${log.detected_intent || 'General'}</td>
+            <td class="p-3 font-mono text-slate-600">${log.dense_hits}</td>
+            <td class="p-3 font-mono text-slate-600">${log.bm25_hits}</td>
+            <td class="p-3 font-mono font-bold text-emerald-700">${Math.round((log.grounding_score || 0) * 100)}%</td>
+            <td class="p-3 font-mono text-amber-700 font-bold">${Math.round(log.latency_ms)} ms</td>
           `;
           tbody.appendChild(tr);
         });
@@ -1513,7 +1814,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     async function runRagBenchmark() {
       const btn = document.getElementById('btn-benchmark');
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Running Suite...</span>`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Running Benchmark...</span>`;
       lucide.createIcons();
 
       try {
@@ -1530,7 +1831,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
 
         refreshDashboardStats();
       } catch (err) {
-        alert('Benchmark execution error: ' + err.message);
+        alert('Benchmark error: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Run Golden Benchmark</span>`;
@@ -1538,7 +1839,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       }
     }
 
-    // MCP Copy Button
+    // MCP Copy
     function copyMcpUrl() {
       const copyText = document.getElementById('mcp-url-input');
       copyText.select();

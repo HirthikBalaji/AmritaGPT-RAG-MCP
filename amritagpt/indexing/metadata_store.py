@@ -211,6 +211,54 @@ class MetadataStore:
             cursor.execute("SELECT chunk_id, section_title, page, raw_content FROM chunks WHERE doc_id = ? ORDER BY chunk_index", (doc_id,))
             return [dict(r) for r in cursor.fetchall()]
 
+    def delete_document(self, doc_id: str) -> bool:
+        """Permanently delete a document and its corresponding chunks from SQLite."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM chunks WHERE doc_id = ?", (doc_id,))
+            cursor.execute("DELETE FROM documents WHERE doc_id = ?", (doc_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_document_metadata(
+        self,
+        doc_id: str,
+        access_policy: Optional[str] = None,
+        department: Optional[str] = None,
+        category: Optional[str] = None
+    ) -> bool:
+        """Update access policy, department, or category for a document and its chunks."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            updates = []
+            params = []
+            if access_policy:
+                updates.append("access_policy = ?")
+                params.append(access_policy)
+            if department:
+                updates.append("department = ?")
+                params.append(department)
+            if category:
+                updates.append("category = ?")
+                params.append(category)
+
+            if not updates:
+                return False
+
+            updates.append("updated_at = CURRENT_TIMESTAMP")
+            params.append(doc_id)
+            cursor.execute(f"UPDATE documents SET {', '.join(updates)} WHERE doc_id = ?", params)
+            
+            if access_policy:
+                cursor.execute("UPDATE chunks SET access_policy = ? WHERE doc_id = ?", (access_policy, doc_id))
+            if department:
+                cursor.execute("UPDATE chunks SET department = ? WHERE doc_id = ?", (department, doc_id))
+            if category:
+                cursor.execute("UPDATE chunks SET category = ? WHERE doc_id = ?", (category, doc_id))
+
+            conn.commit()
+            return True
+
     def record_telemetry(self, query: str, role: str, intent: str, dense_hits: int, bm25_hits: int, fused_hits: int, final_k: int, grounding_score: float, latency_ms: float):
         with self._get_connection() as conn:
             cursor = conn.cursor()

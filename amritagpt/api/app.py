@@ -8,11 +8,12 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Path as PathParam, Depends, Request
+import shutil
+from fastapi import FastAPI, HTTPException, Query, Path as PathParam, Depends, Request, UploadFile, File, Form, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse, FileResponse
 
-from amritagpt.config import DATA_DIR, BASE_DIR
+from amritagpt.config import DATA_DIR, BASE_DIR, ADMIN_API_KEY
 from amritagpt.api.schemas import (
     SearchKnowledgeRequest, SearchKnowledgeResponse,
     SearchDocumentsRequest, SearchDocumentsResponse, DocumentDetailResponse, DocumentSummary,
@@ -31,6 +32,9 @@ from amritagpt.observability.telemetry import EvaluationFramework
 from amritagpt.security.access_control import AccessControlManager
 from amritagpt.mcp.server import create_amrita_mcp_server
 from amritagpt.ingestion.pipeline import IngestionPipeline
+from amritagpt.ingestion.parser import DocumentParser
+from amritagpt.ingestion.chunker import SemanticChunker
+
 
 
 
@@ -417,6 +421,185 @@ def create_app() -> FastAPI:
         )
 
     # ---------------------------------------------------------------------------
+    # Production Admin & Document Management Controls
+    # ---------------------------------------------------------------------------
+
+    @app.post("/api/v1/admin/verify", tags=["Admin Controls"], summary="Verify Admin Key")
+    def verify_admin(req: Dict[str, str]):
+        """Validates the administrative access key."""
+        key = req.get("admin_key", "")
+        if key != ADMIN_API_KEY:
+            raise HTTPException(status_code=401, detail="Invalid administrative security key.")
+        return {"authenticated": True, "role": "admin", "institution": "Amrita Vishwa Vidyapeetham"}
+
+    def _require_admin(x_admin_key: Optional[str]):
+        if not x_admin_key or x_admin_key != ADMIN_API_KEY:
+            raise HTTPException(
+                status_code=403,
+                detail="Administrative privilege required. Provide a valid 'X-Admin-Key' header."
+            )
+
+    @app.post("/api/v1/documents/upload", tags=["Admin Controls"], summary="Upload & Index Document (Admin Only)")
+    async def upload_document(
+        file: UploadFile = File(..., description="Document file to upload (PDF, DOCX, XLSX, PPTX, TXT, etc.)"),
+        department: str = Form("Academic Admin Office", description="Target Department"),
+        category: Optional[str] = Form(None, description="Document Category"),
+        academic_year: Optional[str] = Form(None, description="Academic Year (e.g. 2025-26)"),
+        access_policy: str = Form("student", description="Access Policy ('public', 'student', 'faculty', 'admin')"),
+        x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")
+    ):
+        """Uploads an institutional document, parses, chunks, and incrementally updates dual indices."""
+        _require_admin(x_admin_key)
+
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="Filename missing.")
+
+        # Ensure department folder in DATA_DIR
+        target_dir = DATA_DIR / department
+        target_dir.mkdir(parents=True, exist_ok=True)
+        dest_path = target_dir / file.filename
+
+        # Write uploaded file to disk
+        with open(dest_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        # Parse document
+        parsed = DocumentParser.parse_document(dest_path, DATA_DIR)
+        if not parsed or not parsed.sections:
+            raise HTTPException(status_code=422, detail="Unable to extract valid text/sections from document.")
+
+        # Apply admin overrides
+        parsed.department = department
+        if category:
+            parsed.category = category
+        if academic_year:
+            parsed.academic_year = academic_year
+        if access_policy:
+            parsed.access_policy = access_policy
+
+        # Chunk document
+        chunks = SemanticChunker.chunk_document(parsed)
+        if not chunks:
+            raise HTTPException(status_code=422, detail="Document could not be semantically chunked.")
+
+        # Save to SQLite metadata store
+        meta_store.save_document(parsed, chunks)
+
+        # Incremental index update:
+        with meta_store._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT chunk_id, enriched_content FROM chunks ORDER BY chunk_id")
+            all_db_chunks = cursor.fetchall()
+
+        all_chunk_ids = [r[0] for r in all_db_chunks]
+        all_chunk_texts = [r[1] for r in all_db_chunks]
+        dirty_chunk_ids = {c.chunk_id for c in chunks}
+
+        # Incrementally update dense vector store & BM25 store
+        vector_store.build_index(all_chunk_ids, all_chunk_texts, dirty_chunk_ids=dirty_chunk_ids)
+        bm25_store.build_index(all_chunk_ids, all_chunk_texts)
+
+        return {
+            "status": "success",
+            "message": f"Document '{file.filename}' uploaded and indexed successfully.",
+            "doc_id": parsed.doc_id,
+            "filename": parsed.filename,
+            "department": parsed.department,
+            "category": parsed.category,
+            "academic_year": parsed.academic_year,
+            "access_policy": parsed.access_policy,
+            "sections_extracted": len(parsed.sections),
+            "chunks_indexed": len(chunks),
+            "total_chunks_in_kb": len(all_chunk_ids)
+        }
+
+    @app.delete("/api/v1/documents/{document_id}", tags=["Admin Controls"], summary="Delete Document & Chunks (Admin Only)")
+    def delete_document(
+        document_id: str = PathParam(..., description="Unique document ID to delete"),
+        x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")
+    ):
+        """Permanently removes an institutional document and its chunks from the catalog and search indices."""
+        _require_admin(x_admin_key)
+
+        doc = meta_store.get_document_by_id(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
+
+        # Delete from disk if present
+        rel_path = doc.get("relative_path", "")
+        if rel_path:
+            full_path = DATA_DIR / rel_path
+            if full_path.exists() and full_path.is_file():
+                try:
+                    full_path.unlink()
+                except Exception as e:
+                    print(f"Warning deleting file from disk: {e}")
+
+        # Delete from SQLite
+        meta_store.delete_document(document_id)
+
+        # Re-sync remaining active chunks with vector & BM25 stores
+        with meta_store._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT chunk_id, enriched_content FROM chunks ORDER BY chunk_id")
+            remaining_chunks = cursor.fetchall()
+
+        all_chunk_ids = [r[0] for r in remaining_chunks]
+        all_chunk_texts = [r[1] for r in remaining_chunks]
+
+        vector_store.build_index(all_chunk_ids, all_chunk_texts, force_recompute=False)
+        bm25_store.build_index(all_chunk_ids, all_chunk_texts)
+
+        return {
+            "status": "success",
+            "message": f"Document '{doc.get('filename')}' and all associated chunks permanently deleted.",
+            "deleted_doc_id": document_id,
+            "remaining_chunks": len(all_chunk_ids)
+        }
+
+    @app.patch("/api/v1/documents/{document_id}", tags=["Admin Controls"], summary="Update Document Metadata (Admin Only)")
+    def update_document(
+        document_id: str = PathParam(..., description="Document ID"),
+        payload: Dict[str, Any] = ...,
+        x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")
+    ):
+        """Updates document access policy, department, or category."""
+        _require_admin(x_admin_key)
+
+        access_policy = payload.get("access_policy")
+        department = payload.get("department")
+        category = payload.get("category")
+
+        success = meta_store.update_document_metadata(
+            doc_id=document_id,
+            access_policy=access_policy,
+            department=department,
+            category=category
+        )
+        if not success:
+            raise HTTPException(status_code=404, detail="Document not found or no valid updates provided.")
+
+        return {"status": "success", "updated_doc_id": document_id}
+
+    @app.get("/api/v1/documents/{document_id}/download", tags=["Document Catalog"], summary="Download Original Document File")
+    def download_document(document_id: str = PathParam(..., description="Document ID")):
+        """Downloads or streams the original document file."""
+        doc = meta_store.get_document_by_id(document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found.")
+
+        rel_path = doc.get("relative_path", "")
+        file_path = DATA_DIR / rel_path
+        if not file_path.exists() or not file_path.is_file():
+            raise HTTPException(status_code=404, detail="Original source file not found on storage disk.")
+
+        return FileResponse(
+            path=str(file_path),
+            filename=doc.get("filename", file_path.name),
+            media_type="application/octet-stream"
+        )
+
+    # ---------------------------------------------------------------------------
     # Observability & Evaluation Endpoints
     # ---------------------------------------------------------------------------
 
@@ -511,10 +694,14 @@ def create_app() -> FastAPI:
         "/api/v1/ingestion/run",
         response_model=IngestionStatusResponse,
         tags=["Ingestion Bus"],
-        summary="Trigger Knowledge Ingestion",
+        summary="Trigger Knowledge Ingestion (Admin Only)",
         description="Triggers the background ingestion engine with incremental embedding cache support."
     )
-    def trigger_ingestion(req: IngestionRunRequest):
+    def trigger_ingestion(
+        req: IngestionRunRequest,
+        x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")
+    ):
+        _require_admin(x_admin_key)
         nonlocal ingestion_state
         with ingestion_lock:
             if ingestion_state["status"] == "running":

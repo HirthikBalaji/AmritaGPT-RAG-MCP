@@ -2,6 +2,10 @@
 Configuration settings for AmritaGPT: Institutional Intelligence Infrastructure.
 """
 from pathlib import Path
+import os
+
+# Admin Security Key
+ADMIN_API_KEY = os.getenv("AMRITAGPT_ADMIN_KEY", "amrita-admin-2026")
 
 # Root directories
 BASE_DIR = Path(__file__).resolve().parent.parent
