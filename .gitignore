@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Raw Heterogeneous Institutional Documents
+data/
+data/**
+
+# Storage, Embeddings, Indices & Databases
+storage/
+storage/**
+*.db
+*.sqlite
+*.sqlite3
+*.npz
+*.pkl
+*.npy
+
+# Environment & Credentials
+.env
+.env.*
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution & Build
+dist/
+build/
+*.egg-info/
+
+# IDE & OS Artifacts
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & Test Caches
+*.log
+.pytest_cache/
+.coverage

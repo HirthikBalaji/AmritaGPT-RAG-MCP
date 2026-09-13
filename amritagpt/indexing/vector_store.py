@@ -1,0 +1,114 @@
+"""
+Dense Vector Index for AmritaGPT using FastEmbed and NumPy Vectorized Cosine Similarity.
+Provides dense semantic search over contextually enriched chunks.
+"""
+from pathlib import Path
+from typing import List, Dict, Tuple, Optional, Any
+import json
+import numpy as np
+from fastembed import TextEmbedding
+
+from amritagpt.config import VECTOR_INDEX_PATH, VECTOR_CHUNKS_PATH, EMBEDDING_MODEL_NAME
+
+
+class DenseVectorStore:
+    def __init__(self, index_path: Path = VECTOR_INDEX_PATH, chunks_path: Path = VECTOR_CHUNKS_PATH):
+        self.index_path = index_path
+        self.chunks_path = chunks_path
+        self._embedding_model: Optional[TextEmbedding] = None
+        self.chunk_ids: List[str] = []
+        self.embeddings: Optional[np.ndarray] = None  # Normalized matrix shape: (N, dim)
+
+    @property
+    def model(self) -> TextEmbedding:
+        if self._embedding_model is None:
+            self._embedding_model = TextEmbedding(model_name=EMBEDDING_MODEL_NAME)
+        return self._embedding_model
+
+    def embed_texts(self, texts: List[str], batch_size: int = 64) -> np.ndarray:
+        """Generate dense normalized embeddings for a list of texts."""
+        if not texts:
+            return np.empty((0, 384), dtype=np.float32)
+        
+        all_vecs = []
+        # Process in batches
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            generator = self.model.embed(batch)
+            vecs = np.array(list(generator), dtype=np.float32)
+            all_vecs.append(vecs)
+            
+        matrix = np.vstack(all_vecs)
+        # L2 normalize
+        norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        return matrix / norms
+
+    def embed_query(self, query: str) -> np.ndarray:
+        """Embed a single query into a normalized vector."""
+        vec = list(self.model.embed([query]))[0]
+        vec = np.array(vec, dtype=np.float32)
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec = vec / norm
+        return vec
+
+    def build_index(self, chunk_ids: List[str], texts: List[str]):
+        """Build and persist the vector index from chunk texts."""
+        if not chunk_ids:
+            return
+        
+        print(f"Embedding {len(texts)} chunks with {EMBEDDING_MODEL_NAME}...")
+        embeddings = self.embed_texts(texts)
+        self.chunk_ids = chunk_ids
+        self.embeddings = embeddings
+        self.save()
+
+    def save(self):
+        """Save vector matrix and chunk ID mapping to disk."""
+        if self.embeddings is not None and self.chunk_ids:
+            np.savez_compressed(str(self.index_path), embeddings=self.embeddings)
+            with open(self.chunks_path, "w", encoding="utf-8") as f:
+                json.dump(self.chunk_ids, f)
+
+    def load(self) -> bool:
+        """Load vector matrix and chunk ID mapping if exists."""
+        if self.index_path.exists() and self.chunks_path.exists():
+            try:
+                data = np.load(str(self.index_path))
+                self.embeddings = data["embeddings"]
+                with open(self.chunks_path, "r", encoding="utf-8") as f:
+                    self.chunk_ids = json.load(f)
+                return True
+            except Exception as e:
+                print(f"Failed to load vector index: {e}")
+                return False
+        return False
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 30,
+        allowed_chunk_ids: Optional[set] = None
+    ) -> List[Tuple[str, float]]:
+        """Dense similarity search returning (chunk_id, similarity_score)."""
+        if self.embeddings is None or len(self.chunk_ids) == 0:
+            if not self.load():
+                return []
+
+        q_vec = self.embed_query(query)
+        # Cosine similarity is dot product of normalized vectors
+        scores = np.dot(self.embeddings, q_vec)
+
+        if allowed_chunk_ids is not None:
+            # Mask out non-allowed chunk ids
+            mask = np.array([cid in allowed_chunk_ids for cid in self.chunk_ids], dtype=bool)
+            scores[~mask] = -1.0
+
+        top_indices = np.argsort(-scores)[:top_k]
+        results = []
+        for idx in top_indices:
+            score = float(scores[idx])
+            if score > -0.9:  # valid candidate
+                results.append((self.chunk_ids[idx], score))
+        return results

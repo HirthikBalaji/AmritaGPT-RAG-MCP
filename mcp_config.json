@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "amritagpt": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\Suz Machine Tech\\RAG\\run_server.py",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}

@@ -1,0 +1,880 @@
+openapi: 3.1.0
+info:
+  title: AmritaGPT Institutional Intelligence API
+  description: '**AmritaGPT** is an enterprise-grade Institutional Intelligence Infrastructure
+    for **Amrita Vishwa Vidyapeetham**. It exposes a production RAG platform combining
+    multimodal document ingestion, structure-aware semantic chunking, dense vector
+    + BM25 hybrid search, cross-encoder reranking, role-based access control, and
+    grounded answer verification.
+
+
+    This API is **fully OpenAPI 3.1 compliant** and exposes interactive Swagger documentation,
+    ReDoc specifications, and standard REST endpoints alongside an integrated **MCP
+    Server**.'
+  contact:
+    name: AmritaGPT Intelligence Team
+    url: https://www.amrita.edu/
+    email: amritagpt@amrita.edu
+  license:
+    name: Institutional License
+  version: 1.0.0
+paths:
+  /:
+    get:
+      tags:
+      - General
+      summary: API Root Information
+      description: Returns API identity and server status.
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      tags:
+      - General
+      summary: Health Check
+      description: Service health check ensuring index availability.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/search/knowledge:
+    post:
+      tags:
+      - Hybrid Retrieval
+      summary: Hybrid Knowledge Retrieval
+      description: Executes multi-stage hybrid search (Dense Vector + BM25 + RRF +
+        Reranker) with access filtering.
+      operationId: search_knowledge_api_v1_search_knowledge_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchKnowledgeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchKnowledgeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/qa/ask:
+    post:
+      tags:
+      - Grounded Generation
+      summary: Ask Grounded Institutional Question
+      description: Generates an evidence-grounded answer backed strictly by institutional
+        citations and a factual grounding score.
+      operationId: ask_question_api_v1_qa_ask_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskQuestionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AskQuestionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/policy/search:
+    post:
+      tags:
+      - Policies & Regulations
+      summary: Search University Policies
+      description: Searches institutional policies, disciplinary rules, hostel regulations,
+        and administrative guidelines.
+      operationId: search_policy_api_v1_policy_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicySearchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyRegulationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/regulations/academic:
+    post:
+      tags:
+      - Policies & Regulations
+      summary: Search Academic Regulations
+      description: Search official B.Tech/M.Tech/PhD ordinances, grading criteria,
+        and attendance rules.
+      operationId: search_academic_regulations_api_v1_regulations_academic_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicRegulationsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyRegulationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/search/documents:
+    post:
+      tags:
+      - Document Catalog
+      summary: Search Document Catalog
+      description: Search institutional documents by filename, department, or keywords.
+      operationId: search_documents_api_v1_search_documents_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchDocumentsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchDocumentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/documents/{document_id}:
+    get:
+      tags:
+      - Document Catalog
+      summary: Get Document Details
+      description: Retrieve full metadata, section list, and content of an institutional
+        document.
+      operationId: get_document_api_v1_documents__document_id__get
+      parameters:
+      - name: document_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Unique document identifier
+          title: Document Id
+        description: Unique document identifier
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/documents/compare:
+    post:
+      tags:
+      - Document Catalog
+      summary: Compare Document Versions
+      description: Compare two document versions on a topic to identify institutional
+        revisions.
+      operationId: compare_documents_api_v1_documents_compare_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompareVersionsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareVersionsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/system/stats:
+    get:
+      tags:
+      - Observability & Metrics
+      summary: Get System Statistics
+      description: 'Retrieve real-time observability telemetry: document counts, chunks,
+        query latency, and grounding score.'
+      operationId: system_stats_api_v1_system_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatsResponse'
+  /api/v1/evaluation/run:
+    post:
+      tags:
+      - Observability & Metrics
+      summary: Run Automated RAG Benchmark
+      description: Executes the automated evaluation suite calculating Recall@1, Recall@5,
+        MRR, and latency profiles.
+      operationId: run_evaluation_api_v1_evaluation_run_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationMetricResponse'
+components:
+  schemas:
+    AcademicRegulationsRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Specific regulation clause, attendance, grading rule
+          example: R.14 grading system
+        program:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Program
+          description: Academic degree program
+          default: B.Tech
+          example: B.Tech
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+          description: Admissions or regulation year
+          default: '2023'
+          example: '2023'
+      type: object
+      required:
+      - query
+      title: AcademicRegulationsRequest
+    AskQuestionRequest:
+      properties:
+        question:
+          type: string
+          title: Question
+          description: Natural language question for institutional RAG
+          example: What is the minimum attendance required to appear for end semester
+            examinations?
+        role:
+          type: string
+          title: Role
+          description: Role of the asking user
+          default: student
+          example: student
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department
+          description: Optional target department
+          example: Academic Admin Office
+      type: object
+      required:
+      - question
+      title: AskQuestionRequest
+    AskQuestionResponse:
+      properties:
+        question:
+          type: string
+          title: Question
+        answer:
+          type: string
+          title: Answer
+          description: Verified answer synthesized from institutional documents
+        confidence:
+          type: string
+          title: Confidence
+          description: '''High'', ''Moderate'', ''Low'', or ''None'''
+          example: High
+        grounding_score:
+          type: number
+          title: Grounding Score
+          description: Factual alignment score between 0.0 and 1.0
+          example: 0.95
+        is_faithful:
+          type: boolean
+          title: Is Faithful
+          description: Flag indicating if the answer contains unsupported claims
+          example: true
+        intent:
+          type: string
+          title: Intent
+          example: Academic Regulation
+        citations:
+          items:
+            type: string
+          type: array
+          title: Citations
+          description: Formatted citations with document, section, and page provenance
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceItem'
+          type: array
+          title: Sources
+        is_sufficient:
+          type: boolean
+          title: Is Sufficient
+          description: False if knowledge base lacked sufficient evidence
+        role:
+          type: string
+          title: Role
+        latency_ms:
+          type: number
+          title: Latency Ms
+          example: 120.5
+      type: object
+      required:
+      - question
+      - answer
+      - confidence
+      - grounding_score
+      - is_faithful
+      - intent
+      - citations
+      - is_sufficient
+      - role
+      - latency_ms
+      title: AskQuestionResponse
+    CompareVersionsRequest:
+      properties:
+        doc_id_1:
+          type: string
+          title: Doc Id 1
+          description: ID of first/baseline document
+          example: doc_id_1
+        doc_id_2:
+          type: string
+          title: Doc Id 2
+          description: ID of second/comparative document
+          example: doc_id_2
+        topic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topic
+          description: Optional topic or course keyword to compare
+          example: machine learning
+      type: object
+      required:
+      - doc_id_1
+      - doc_id_2
+      title: CompareVersionsRequest
+    CompareVersionsResponse:
+      properties:
+        doc_1:
+          additionalProperties: true
+          type: object
+          title: Doc 1
+        doc_2:
+          additionalProperties: true
+          type: object
+          title: Doc 2
+        comparison_topic:
+          type: string
+          title: Comparison Topic
+      type: object
+      required:
+      - doc_1
+      - doc_2
+      - comparison_topic
+      title: CompareVersionsResponse
+    DocumentDetailResponse:
+      properties:
+        doc_id:
+          type: string
+          title: Doc Id
+        filename:
+          type: string
+          title: Filename
+        department:
+          type: string
+          title: Department
+        category:
+          type: string
+          title: Category
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+        version:
+          type: string
+          title: Version
+        access_policy:
+          type: string
+          title: Access Policy
+        total_sections:
+          type: integer
+          title: Total Sections
+        sections:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Sections
+      type: object
+      required:
+      - doc_id
+      - filename
+      - department
+      - category
+      - version
+      - access_policy
+      - total_sections
+      title: DocumentDetailResponse
+    DocumentSummary:
+      properties:
+        doc_id:
+          type: string
+          title: Doc Id
+          example: a1b2c3d4e5f6
+        filename:
+          type: string
+          title: Filename
+          example: curriculum-and-syllabi-amrita-btech-cse-2023.pdf
+        department:
+          type: string
+          title: Department
+          example: Academic Admin Office
+        category:
+          type: string
+          title: Category
+          example: Academic Programs & Regulations
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+          example: '2023'
+        version:
+          type: string
+          title: Version
+          example: '2023'
+        access_policy:
+          type: string
+          title: Access Policy
+          example: student
+        sections:
+          type: integer
+          title: Sections
+          example: 42
+      type: object
+      required:
+      - doc_id
+      - filename
+      - department
+      - category
+      - version
+      - access_policy
+      - sections
+      title: DocumentSummary
+    EvaluationMetricResponse:
+      properties:
+        total_benchmark_queries:
+          type: integer
+          title: Total Benchmark Queries
+          example: 5
+        recall_at_1:
+          type: number
+          title: Recall At 1
+          example: 0.4
+        recall_at_5:
+          type: number
+          title: Recall At 5
+          example: 0.6
+        mean_reciprocal_rank_mrr:
+          type: number
+          title: Mean Reciprocal Rank Mrr
+          example: 0.5
+        p50_latency_ms:
+          type: number
+          title: P50 Latency Ms
+          example: 180.2
+        p95_latency_ms:
+          type: number
+          title: P95 Latency Ms
+          example: 245.0
+        detailed_results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Detailed Results
+      type: object
+      required:
+      - total_benchmark_queries
+      - recall_at_1
+      - recall_at_5
+      - mean_reciprocal_rank_mrr
+      - p50_latency_ms
+      - p95_latency_ms
+      title: EvaluationMetricResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PolicyRegulationResponse:
+      properties:
+        topic:
+          type: string
+          title: Topic
+        program:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Program
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+        regulations_found:
+          type: integer
+          title: Regulations Found
+        evidence:
+          type: string
+          title: Evidence
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceItem'
+          type: array
+          title: Sources
+      type: object
+      required:
+      - topic
+      - regulations_found
+      - evidence
+      title: PolicyRegulationResponse
+    PolicySearchRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Policy question or guideline keyword
+          example: hostel rules and curfew
+        role:
+          type: string
+          title: Role
+          description: User role for access control
+          default: student
+          example: student
+      type: object
+      required:
+      - query
+      title: PolicySearchRequest
+    SearchDocumentsRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Search keyword in filename, category, or department
+          example: regulations
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department
+          description: Optional department filter
+          example: CSE
+        role:
+          type: string
+          title: Role
+          description: User role for permission filtering
+          default: student
+          example: student
+      type: object
+      required:
+      - query
+      title: SearchDocumentsRequest
+    SearchDocumentsResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+        total_matches:
+          type: integer
+          title: Total Matches
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentSummary'
+          type: array
+          title: Documents
+      type: object
+      required:
+      - query
+      - total_matches
+      title: SearchDocumentsResponse
+    SearchKnowledgeRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Natural language search query
+          example: What is the attendance requirement for B.Tech students?
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department
+          description: Optional department filter
+          example: Academic Admin Office
+        document_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Type
+          description: Optional file type filter ('pdf', 'docx', 'xlsx')
+          example: pdf
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+          description: Optional academic year filter
+          example: '2023'
+        role:
+          type: string
+          title: Role
+          description: Role for access control ('public', 'student', 'faculty', 'admin')
+          default: student
+          example: student
+        top_k:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Top K
+          description: Number of verified candidate chunks to return
+          default: 5
+          example: 5
+      type: object
+      required:
+      - query
+      title: SearchKnowledgeRequest
+    SearchKnowledgeResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          example: success
+        query:
+          type: string
+          title: Query
+          example: What is the attendance requirement for B.Tech students?
+        role:
+          type: string
+          title: Role
+          example: student
+        analyzed_intent:
+          type: string
+          title: Analyzed Intent
+          example: Academic Regulation
+        total_candidates_retrieved:
+          type: integer
+          title: Total Candidates Retrieved
+          example: 18
+        selected_evidence_count:
+          type: integer
+          title: Selected Evidence Count
+          example: 4
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceItem'
+          type: array
+          title: Sources
+        evidence_text:
+          type: string
+          title: Evidence Text
+          description: Assembled context with institutional evidence
+      type: object
+      required:
+      - status
+      - query
+      - role
+      - analyzed_intent
+      - total_candidates_retrieved
+      - selected_evidence_count
+      - evidence_text
+      title: SearchKnowledgeResponse
+    SourceItem:
+      properties:
+        source_num:
+          type: integer
+          title: Source Num
+          example: 1
+        doc_id:
+          type: string
+          title: Doc Id
+          example: 8f9a2b3c4d5e
+        chunk_id:
+          type: string
+          title: Chunk Id
+          example: 8f9a2b3c4d5e_c4
+        filename:
+          type: string
+          title: Filename
+          example: btech-school-computing-regulations-2023.pdf
+        relative_path:
+          type: string
+          title: Relative Path
+          example: Academic Admin Office/CSE/btech-school-computing-regulations-2023.pdf
+        department:
+          type: string
+          title: Department
+          example: Academic Admin Office
+        section:
+          type: string
+          title: Section
+          example: R.4 Attendance
+        page:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Page
+          example: 4
+        academic_year:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Academic Year
+          example: '2023'
+        access_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Access Policy
+          default: student
+          example: student
+        rerank_score:
+          type: number
+          title: Rerank Score
+          example: 8.75
+      type: object
+      required:
+      - source_num
+      - doc_id
+      - chunk_id
+      - filename
+      - relative_path
+      - department
+      - section
+      - rerank_score
+      title: SourceItem
+    SystemStatsResponse:
+      properties:
+        total_documents:
+          type: integer
+          title: Total Documents
+          example: 299
+        total_chunks:
+          type: integer
+          title: Total Chunks
+          example: 15346
+        departments:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Departments
+        access_distribution:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Access Distribution
+        total_queries_served:
+          type: integer
+          title: Total Queries Served
+          example: 42
+        avg_query_latency_ms:
+          type: number
+          title: Avg Query Latency Ms
+          example: 118.4
+        avg_grounding_score:
+          type: number
+          title: Avg Grounding Score
+          example: 0.92
+      type: object
+      required:
+      - total_documents
+      - total_chunks
+      - total_queries_served
+      - avg_query_latency_ms
+      - avg_grounding_score
+      title: SystemStatsResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
