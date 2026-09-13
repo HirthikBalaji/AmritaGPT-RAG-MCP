@@ -43,3 +43,6 @@ desktop.ini
 *.log
 .pytest_cache/
 .coverage
+
+*.tar.gz
+*.zip
