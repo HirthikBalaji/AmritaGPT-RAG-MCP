@@ -73,16 +73,8 @@ class DocumentParser:
         year_match = re.search(r"\b(20[12]\d)\b", filename + " " + relative_path)
         academic_year = year_match.group(1) if year_match else None
         
-        # Detect Access Policy
-        lower_path = (relative_path + " " + filename).lower()
-        if any(w in lower_path for w in ["hr", "payroll", "salary", "confidential", "appraisal"]):
-            access_policy = "admin"
-        elif any(w in lower_path for w in ["faculty details", "research cell", "exam_cell", "iqac", "committees"]):
-            access_policy = "faculty"
-        elif any(w in lower_path for w in ["curriculum", "syllabus", "timetable", "time table", "student", "calendar", "regulations", "hostel", "canteen", "library"]):
-            access_policy = "student"
-        else:
-            access_policy = "public"
+        # Access Policy (All institutional knowledge defaults to student tier)
+        access_policy = "student"
 
         # Detect Category
         category = "General"
