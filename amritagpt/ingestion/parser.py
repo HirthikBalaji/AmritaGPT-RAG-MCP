@@ -347,7 +347,7 @@ class DocumentParser:
             return None
         
         try:
-            rel_path = str(file_path.relative_to(base_data_dir))
+            rel_path = Path(file_path.relative_to(base_data_dir)).as_posix()
         except ValueError:
             rel_path = file_path.name
 
