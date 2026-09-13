@@ -439,78 +439,142 @@ def create_app() -> FastAPI:
                 detail="Administrative privilege required. Provide a valid 'X-Admin-Key' header."
             )
 
-    @app.post("/api/v1/documents/upload", tags=["Admin Controls"], summary="Upload & Index Document (Admin Only)")
+    @app.post("/api/v1/documents/upload", tags=["Admin Controls"], summary="Upload & Index Document(s) (Admin Only)")
     async def upload_document(
-        file: UploadFile = File(..., description="Document file to upload (PDF, DOCX, XLSX, PPTX, TXT, etc.)"),
+        files: Optional[List[UploadFile]] = File(None, description="Document file(s) to upload (PDF, DOCX, XLSX, PPTX, TXT, etc.)"),
+        file: Optional[UploadFile] = File(None, description="Single document file to upload (legacy support)"),
         department: str = Form("Academic Admin Office", description="Target Department"),
         category: Optional[str] = Form(None, description="Document Category"),
         academic_year: Optional[str] = Form(None, description="Academic Year (e.g. 2025-26)"),
         access_policy: str = Form("student", description="Access Policy ('public', 'student', 'faculty', 'admin')"),
         x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")
     ):
-        """Uploads an institutional document, parses, chunks, and incrementally updates dual indices."""
+        """Uploads institutional document(s), parses, chunks, and incrementally updates dual indices."""
         _require_admin(x_admin_key)
 
-        if not file.filename:
-            raise HTTPException(status_code=400, detail="Filename missing.")
+        # Collect upload files from either 'files' (multi-file) or 'file' (legacy single-file)
+        upload_files: List[UploadFile] = []
+        if files:
+            upload_files.extend([f for f in files if f and f.filename])
+        if file and file.filename:
+            if not any(f.filename == file.filename for f in upload_files):
+                upload_files.append(file)
+
+        if not upload_files:
+            raise HTTPException(status_code=400, detail="No file(s) provided for upload.")
 
         # Ensure department folder in DATA_DIR
         target_dir = DATA_DIR / department
         target_dir.mkdir(parents=True, exist_ok=True)
-        dest_path = target_dir / file.filename
 
-        # Write uploaded file to disk
-        with open(dest_path, "wb") as f:
-            shutil.copyfileobj(file.file, f)
+        processed_items: List[Dict[str, Any]] = []
+        failed_items: List[Dict[str, str]] = []
+        all_dirty_chunk_ids: set = set()
 
-        # Parse document
-        parsed = DocumentParser.parse_document(dest_path, DATA_DIR)
-        if not parsed or not parsed.sections:
-            raise HTTPException(status_code=422, detail="Unable to extract valid text/sections from document.")
+        for upl in upload_files:
+            dest_path = target_dir / upl.filename
+            try:
+                # Write uploaded file to disk
+                with open(dest_path, "wb") as f:
+                    shutil.copyfileobj(upl.file, f)
 
-        # Apply admin overrides
-        parsed.department = department
-        if category:
-            parsed.category = category
-        if academic_year:
-            parsed.academic_year = academic_year
-        if access_policy:
-            parsed.access_policy = access_policy
+                # Parse document
+                parsed = DocumentParser.parse_document(dest_path, DATA_DIR)
+                if not parsed or not parsed.sections:
+                    failed_items.append({
+                        "filename": upl.filename,
+                        "error": "Unable to extract valid text/sections from document."
+                    })
+                    continue
 
-        # Chunk document
-        chunks = SemanticChunker.chunk_document(parsed)
-        if not chunks:
-            raise HTTPException(status_code=422, detail="Document could not be semantically chunked.")
+                # Apply admin overrides
+                parsed.department = department
+                if category:
+                    parsed.category = category
+                if academic_year:
+                    parsed.academic_year = academic_year
+                if access_policy:
+                    parsed.access_policy = access_policy
 
-        # Save to SQLite metadata store
-        meta_store.save_document(parsed, chunks)
+                # Chunk document
+                chunks = SemanticChunker.chunk_document(parsed)
+                if not chunks:
+                    failed_items.append({
+                        "filename": upl.filename,
+                        "error": "Document could not be semantically chunked."
+                    })
+                    continue
 
-        # Incremental index update:
-        with meta_store._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT chunk_id, enriched_content FROM chunks ORDER BY chunk_id")
-            all_db_chunks = cursor.fetchall()
+                # Save to SQLite metadata store
+                meta_store.save_document(parsed, chunks)
+                all_dirty_chunk_ids.update(c.chunk_id for c in chunks)
 
-        all_chunk_ids = [r[0] for r in all_db_chunks]
-        all_chunk_texts = [r[1] for r in all_db_chunks]
-        dirty_chunk_ids = {c.chunk_id for c in chunks}
+                processed_items.append({
+                    "doc_id": parsed.doc_id,
+                    "filename": parsed.filename,
+                    "department": parsed.department,
+                    "category": parsed.category,
+                    "academic_year": parsed.academic_year,
+                    "access_policy": parsed.access_policy,
+                    "sections_extracted": len(parsed.sections),
+                    "chunks_indexed": len(chunks)
+                })
 
-        # Incrementally update dense vector store & BM25 store
-        vector_store.build_index(all_chunk_ids, all_chunk_texts, dirty_chunk_ids=dirty_chunk_ids)
-        bm25_store.build_index(all_chunk_ids, all_chunk_texts)
+            except Exception as e:
+                failed_items.append({
+                    "filename": upl.filename,
+                    "error": str(e)
+                })
+
+        if not processed_items and failed_items:
+            raise HTTPException(
+                status_code=422,
+                detail=f"All {len(failed_items)} document(s) failed processing: {failed_items}"
+            )
+
+        # Batch incremental index update:
+        total_kb_chunks = 0
+        if all_dirty_chunk_ids:
+            with meta_store._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT chunk_id, enriched_content FROM chunks ORDER BY chunk_id")
+                all_db_chunks = cursor.fetchall()
+
+            all_chunk_ids = [r[0] for r in all_db_chunks]
+            all_chunk_texts = [r[1] for r in all_db_chunks]
+            total_kb_chunks = len(all_chunk_ids)
+
+            # Incrementally update dense vector store & BM25 store once for the entire batch
+            vector_store.build_index(all_chunk_ids, all_chunk_texts, dirty_chunk_ids=all_dirty_chunk_ids)
+            bm25_store.build_index(all_chunk_ids, all_chunk_texts)
+        else:
+            with meta_store._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM chunks")
+                total_kb_chunks = cursor.fetchone()[0]
+
+        total_chunks_indexed = sum(item["chunks_indexed"] for item in processed_items)
+        first_item = processed_items[0] if processed_items else {}
 
         return {
             "status": "success",
-            "message": f"Document '{file.filename}' uploaded and indexed successfully.",
-            "doc_id": parsed.doc_id,
-            "filename": parsed.filename,
-            "department": parsed.department,
-            "category": parsed.category,
-            "academic_year": parsed.academic_year,
-            "access_policy": parsed.access_policy,
-            "sections_extracted": len(parsed.sections),
-            "chunks_indexed": len(chunks),
-            "total_chunks_in_kb": len(all_chunk_ids)
+            "message": f"Successfully processed and indexed {len(processed_items)} document(s).",
+            "total_files": len(upload_files),
+            "uploaded_count": len(processed_items),
+            "failed_count": len(failed_items),
+            "total_chunks_indexed": total_chunks_indexed,
+            "total_chunks_in_kb": total_kb_chunks,
+            "documents": processed_items,
+            "failed": failed_items,
+            # Backwards compatibility fields for single-file clients:
+            "doc_id": first_item.get("doc_id"),
+            "filename": first_item.get("filename"),
+            "department": first_item.get("department"),
+            "category": first_item.get("category"),
+            "academic_year": first_item.get("academic_year"),
+            "access_policy": first_item.get("access_policy"),
+            "sections_extracted": first_item.get("sections_extracted", 0),
+            "chunks_indexed": total_chunks_indexed
         }
 
     @app.delete("/api/v1/documents/{document_id}", tags=["Admin Controls"], summary="Delete Document & Chunks (Admin Only)")

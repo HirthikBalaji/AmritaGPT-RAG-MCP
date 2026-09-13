@@ -423,8 +423,8 @@
 
               <!-- Upload Document Trigger Button -->
               <button onclick="openUploadModal()" class="px-4 py-2.5 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-2 shadow-sm transition-all">
-                <i data-lucide="file-plus-2" class="w-4 h-4"></i>
-                <span>Add New Document</span>
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                <span>Upload Documents</span>
               </button>
             </div>
 
@@ -890,41 +890,65 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
   <!-- MODAL: ADD / UPLOAD NEW DOCUMENT                                          -->
   <!-- ========================================================================= -->
   <div id="upload-doc-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl w-full max-w-xl shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+    <div class="bg-white rounded-2xl w-full max-w-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
         <div>
           <h3 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
             <i data-lucide="upload-cloud" class="w-5 h-5 text-amrita-800"></i>
-            <span>Upload & Index Document</span>
+            <span>Upload & Index Documents</span>
           </h3>
-          <p class="text-xs text-slate-500">File will be parsed, chunked, and added to dual indices immediately</p>
+          <p class="text-xs text-slate-500">Select single or multiple files (PDF, DOCX, XLSX, PPTX, TXT) to parse, chunk, and index</p>
         </div>
         <button onclick="closeUploadModal()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <form id="upload-form" onsubmit="handleUploadSubmit(event)" class="p-5 space-y-4 text-xs">
+      <form id="upload-form" onsubmit="handleUploadSubmit(event)" class="p-5 space-y-4 text-xs overflow-y-auto">
+        <!-- Interactive Multi-file Dropzone -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Select File (PDF, DOCX, XLSX, PPTX, TXT)</label>
-          <input type="file" id="upload-file-input" required class="w-full text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-amrita-800 hover:file:bg-rose-100 border border-slate-200 rounded-xl p-2 bg-slate-50 cursor-pointer">
+          <label class="block font-bold text-slate-700 mb-1.5">Document Files (Single or Multiple)</label>
+          <div id="upload-dropzone" onclick="document.getElementById('upload-file-input').click()" class="border-2 border-dashed border-slate-200 hover:border-amrita-600 rounded-2xl p-4 text-center cursor-pointer transition-all bg-slate-50/70 hover:bg-rose-50/30 group">
+            <input type="file" id="upload-file-input" multiple onchange="handleFileSelection(event)" class="hidden">
+            <div class="flex flex-col items-center justify-center space-y-1.5 py-1">
+              <div class="w-10 h-10 rounded-xl bg-rose-100/70 text-amrita-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="font-bold text-slate-800 text-xs">Click to browse or drag & drop files here</p>
+                <p class="text-[11px] text-slate-500">Supports selecting multiple PDF, DOCX, XLSX, PPTX, TXT files at once</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Files Preview Box -->
+        <div id="selected-files-container" class="hidden space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 px-1">
+            <span id="selected-files-count" class="flex items-center space-x-1.5 text-amrita-900 font-semibold">
+              <i data-lucide="files" class="w-3.5 h-3.5 text-amrita-800"></i>
+              <span>0 files selected</span>
+            </span>
+            <button type="button" onclick="clearSelectedFiles()" class="text-rose-600 hover:text-rose-800 hover:underline">Clear selection</button>
+          </div>
+          <div id="selected-files-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 border border-slate-200 rounded-xl p-2 bg-slate-50"></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Target Department</label>
-            <input type="text" id="upload-dept-input" required value="Academic Admin Office" placeholder="e.g. Academic Admin Office" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+            <input type="text" id="upload-dept-input" required value="Academic Admin Office" placeholder="e.g. Academic Admin Office" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 font-medium">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Category (Optional)</label>
-            <input type="text" id="upload-cat-input" placeholder="e.g. Academic Regulations" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+            <input type="text" id="upload-cat-input" placeholder="e.g. Academic Regulations" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 font-medium">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Academic Year</label>
-            <input type="text" id="upload-year-input" placeholder="e.g. 2025-26" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+            <input type="text" id="upload-year-input" placeholder="e.g. 2025-26" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 font-medium">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Access Policy Tier</label>
@@ -1350,32 +1374,132 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       renderDocumentsTable();
     }
 
+    // =========================================================================
+    // Multi-File Upload & Management
+    // =========================================================================
+    let pendingUploadFiles = [];
+
+    function initDropzone() {
+      const dropzone = document.getElementById('upload-dropzone');
+      if (!dropzone || dropzone.dataset.initialized) return;
+      dropzone.dataset.initialized = 'true';
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('border-amrita-600', 'bg-rose-50/50');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('border-amrita-600', 'bg-rose-50/50');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+          addFilesToPending(Array.from(dt.files));
+        }
+      }, false);
+    }
+
+    function handleFileSelection(e) {
+      const files = Array.from(e.target.files || []);
+      addFilesToPending(files);
+      e.target.value = '';
+    }
+
+    function addFilesToPending(files) {
+      files.forEach(file => {
+        if (!pendingUploadFiles.some(f => f.name === file.name && f.size === file.size)) {
+          pendingUploadFiles.push(file);
+        }
+      });
+      renderSelectedFiles();
+    }
+
+    function removeUploadFile(index) {
+      pendingUploadFiles.splice(index, 1);
+      renderSelectedFiles();
+    }
+
+    function clearSelectedFiles() {
+      pendingUploadFiles = [];
+      renderSelectedFiles();
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderSelectedFiles() {
+      const container = document.getElementById('selected-files-container');
+      const list = document.getElementById('selected-files-list');
+      const countEl = document.getElementById('selected-files-count');
+
+      if (pendingUploadFiles.length === 0) {
+        container.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+      }
+
+      container.classList.remove('hidden');
+      const totalBytes = pendingUploadFiles.reduce((acc, f) => acc + f.size, 0);
+      countEl.innerHTML = `<i data-lucide="files" class="w-3.5 h-3.5 text-amrita-800"></i><span>${pendingUploadFiles.length} file${pendingUploadFiles.length > 1 ? 's' : ''} queued (${formatFileSize(totalBytes)})</span>`;
+
+      list.innerHTML = pendingUploadFiles.map((file, idx) => `
+        <div class="flex items-center justify-between p-1.5 px-2.5 bg-white rounded-lg border border-slate-200 text-xs shadow-2xs">
+          <div class="flex items-center space-x-2 truncate mr-2">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-amrita-800 shrink-0"></i>
+            <span class="font-semibold text-slate-800 truncate" title="${file.name}">${file.name}</span>
+            <span class="text-[10px] text-slate-400 shrink-0">(${formatFileSize(file.size)})</span>
+          </div>
+          <button type="button" onclick="removeUploadFile(${idx})" class="text-slate-400 hover:text-rose-600 p-0.5 rounded transition-colors shrink-0" title="Remove file">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
     // Modal: Open & Close Upload
     function openUploadModal() {
       document.getElementById('upload-doc-modal').classList.remove('hidden');
+      initDropzone();
+      lucide.createIcons();
     }
     function closeUploadModal() {
       document.getElementById('upload-doc-modal').classList.add('hidden');
       document.getElementById('upload-feedback').classList.add('hidden');
+      clearSelectedFiles();
     }
 
     // Handle Upload & Indexing
     async function handleUploadSubmit(e) {
       e.preventDefault();
-      const fileInput = document.getElementById('upload-file-input');
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert('Please choose a file to upload.');
+      if (pendingUploadFiles.length === 0) {
+        alert('Please choose or drop at least one document to upload.');
         return;
       }
 
-      const file = fileInput.files[0];
       const dept = document.getElementById('upload-dept-input').value;
       const cat = document.getElementById('upload-cat-input').value;
       const year = document.getElementById('upload-year-input').value;
       const policy = document.getElementById('upload-policy-select').value;
 
       const formData = new FormData();
-      formData.append('file', file);
+      pendingUploadFiles.forEach(file => {
+        formData.append('files', file);
+      });
       formData.append('department', dept);
       if (cat) formData.append('category', cat);
       if (year) formData.append('academic_year', year);
@@ -1384,11 +1508,11 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       const btn = document.getElementById('btn-upload-submit');
       const feedback = document.getElementById('upload-feedback');
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Parsing & Indexing...</span>`;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Processing & Indexing (${pendingUploadFiles.length})...</span>`;
       lucide.createIcons();
 
       feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200';
-      feedback.textContent = `Uploading '${file.name}' and computing incremental embeddings...`;
+      feedback.textContent = `Uploading ${pendingUploadFiles.length} document(s), extracting sections, and updating neural vector index...`;
       feedback.classList.remove('hidden');
 
       try {
@@ -1401,16 +1525,24 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Upload failed');
+        if (!res.ok) throw new Error(data.detail || 'Batch upload failed');
+
+        const successCount = data.uploaded_count || (data.documents ? data.documents.length : 1);
+        const totalChunks = data.total_chunks_indexed || data.chunks_indexed || 0;
+
+        let summaryText = `✓ Successfully indexed ${successCount} document(s) with ${totalChunks} new chunks embedded!`;
+        if (data.failed_count && data.failed_count > 0) {
+          summaryText += ` (Note: ${data.failed_count} file(s) could not be parsed).`;
+        }
 
         feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        feedback.textContent = `✓ Document successfully indexed! ${data.sections_extracted} sections, ${data.chunks_indexed} new chunks embedded.`;
+        feedback.textContent = summaryText;
 
         setTimeout(() => {
           closeUploadModal();
           loadDocuments();
           refreshDashboardStats();
-        }, 1200);
+        }, 1500);
 
       } catch (err) {
         feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200';
