@@ -118,9 +118,15 @@ class IngestionPipeline:
             
             chunk_ids = [r[0] for r in all_db_chunks]
             chunk_texts = [r[1] for r in all_db_chunks]
+            dirty_chunk_ids = {c.chunk_id for c in all_new_chunks}
 
-            # 1. Build Dense Vector Index
-            self.vector_store.build_index(chunk_ids, chunk_texts)
+            # 1. Build Dense Vector Index (with incremental embedding caching)
+            self.vector_store.build_index(
+                chunk_ids,
+                chunk_texts,
+                force_recompute=force_reindex,
+                dirty_chunk_ids=dirty_chunk_ids
+            )
             
             # 2. Build BM25 Sparse Index
             self.bm25_store.build_index(chunk_ids, chunk_texts)
