@@ -64,745 +64,781 @@
     }
   </style>
 </head>
-<body class="bg-[#F8FAFC] text-slate-800 min-h-screen flex flex-col font-sans selection:bg-rose-500 selection:text-white antialiased">
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen font-sans selection:bg-rose-500 selection:text-white antialiased">
 
   <!-- ========================================================================= -->
-  <!-- Top Navigation Bar                                                        -->
+  <!-- 1. PASSWORD AUTHENTICATION GATE SCREEN                                    -->
   <!-- ========================================================================= -->
-  <header class="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <div id="password-gate-screen" class="min-h-screen flex items-center justify-center p-4 bg-[#F8FAFC]">
+    <div class="card-white rounded-3xl w-full max-w-md p-8 space-y-6 shadow-xl border border-slate-200">
       
-      <!-- Brand Logo & Title -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amrita-900 via-amrita-800 to-rose-600 flex items-center justify-center shadow-md shadow-rose-900/20 text-white font-bold text-lg">
-          <i data-lucide="shield-check" class="w-6 h-6"></i>
+      <!-- Institutional Branding -->
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amrita-900 via-amrita-800 to-rose-600 flex items-center justify-center shadow-lg shadow-rose-900/20 text-white">
+          <i data-lucide="shield-check" class="w-8 h-8"></i>
         </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-extrabold text-lg tracking-tight text-slate-900">AmritaGPT</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 border border-rose-200 font-semibold">Production Admin</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">MCP • RAG</span>
-          </div>
-          <p class="text-[11px] text-slate-500 hidden sm:block">Amrita Vishwa Vidyapeetham • Institutional Knowledge & Intelligence Platform</p>
+        <h1 class="text-2xl font-black tracking-tight text-slate-900">AmritaGPT</h1>
+        <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-amrita-800 border border-rose-200 text-xs font-bold">
+          <i data-lucide="lock" class="w-3 h-3"></i>
+          <span>Administrator Access Required</span>
         </div>
+        <p class="text-xs text-slate-500 max-w-xs mx-auto pt-1">
+          This management console controls university document ingestion, search indices, and governance. Enter the administrative password to access.
+        </p>
       </div>
 
-      <!-- Live Status, Admin Session & Role Selector -->
-      <div class="flex items-center space-x-3">
-        <!-- Live System Status Badge -->
-        <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="system-status-pill" class="text-slate-600 font-medium">Checking engines...</span>
+      <!-- Login Form -->
+      <form id="gate-login-form" onsubmit="handleGateLogin(event)" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Admin Security Password</label>
+          <div class="relative">
+            <input type="password" id="gate-password-input" required autofocus placeholder="Enter administrator password..." class="w-full bg-slate-50 text-slate-900 text-sm pl-4 pr-11 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white font-mono transition-colors">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+              <i id="gate-eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Admin Session Status Badge / Unlock Button -->
-        <div id="admin-auth-container" class="flex items-center">
-          <button id="btn-admin-auth" onclick="openAdminKeyModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-amrita-800 border border-rose-200 hover:bg-rose-100 transition-colors">
-            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-            <span id="admin-auth-label">Unlock Admin Access</span>
-          </button>
+        <!-- Error Banner -->
+        <div id="gate-error-banner" class="hidden p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 flex items-center space-x-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-600"></i>
+          <span id="gate-error-text">Access Denied: Incorrect administrator password.</span>
         </div>
 
-        <!-- Role Simulator Switcher -->
-        <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
-          <i data-lucide="user-check" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span class="text-slate-500 hidden sm:inline font-medium">View as:</span>
-          <select id="global-role-select" onchange="updateActiveRole()" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer">
-            <option value="admin">Administrator</option>
-            <option value="faculty">Faculty</option>
-            <option value="student">Student</option>
-            <option value="public">Public</option>
-          </select>
-        </div>
+        <button type="submit" id="btn-gate-submit" class="w-full py-3 px-4 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
+          <i data-lucide="unlock" class="w-4 h-4"></i>
+          <span>Sign In to Console</span>
+        </button>
+      </form>
 
-        <!-- Swagger Docs Quick Link -->
-        <a href="/docs" target="_blank" class="text-xs flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium transition-colors">
-          <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span class="hidden sm:inline">API Specs</span>
-        </a>
+      <!-- Footer Info -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+        <span>Amrita Vishwa Vidyapeetham</span>
+        <span class="font-mono">Production Gate v1.0</span>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- ========================================================================= -->
-  <!-- Main Dashboard Layout                                                     -->
+  <!-- 2. MAIN DASHBOARD APPLICATION (Gated by Password)                         -->
   <!-- ========================================================================= -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col md:flex-row gap-6">
+  <div id="main-dashboard-app" class="hidden min-h-screen flex flex-col">
 
-    <!-- Sidebar Navigation -->
-    <aside class="w-full md:w-64 shrink-0 flex flex-col space-y-1">
-      <nav class="space-y-1 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-        <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amrita-900 text-white shadow-sm">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          <span>Overview & Stats</span>
-        </button>
-        <button onclick="switchTab('documents')" id="nav-documents" class="tab-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <span class="flex items-center space-x-3">
-            <i data-lucide="folder-search" class="w-4 h-4"></i>
-            <span>Documents Manager</span>
-          </span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 font-bold border border-rose-200" id="sidebar-doc-count">--</span>
-        </button>
-        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i data-lucide="message-square" class="w-4 h-4"></i>
-          <span>Grounded Q&A Studio</span>
-        </button>
-        <button onclick="switchTab('retrieval')" id="nav-retrieval" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i data-lucide="binary" class="w-4 h-4"></i>
-          <span>Hybrid RAG Inspector</span>
-        </button>
-        <button onclick="switchTab('ingestion')" id="nav-ingestion" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          <span>Ingestion & Index Bus</span>
-        </button>
-        <button onclick="switchTab('telemetry')" id="nav-telemetry" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i data-lucide="activity" class="w-4 h-4"></i>
-          <span>Telemetry & Audit</span>
-        </button>
-        <button onclick="switchTab('mcp')" id="nav-mcp" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i data-lucide="cpu" class="w-4 h-4"></i>
-          <span>MCP & Developer Hub</span>
-        </button>
-      </nav>
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amrita-900 via-amrita-800 to-rose-600 flex items-center justify-center shadow-md shadow-rose-900/20 text-white font-bold text-lg">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-lg tracking-tight text-slate-900">AmritaGPT</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 border border-rose-200 font-semibold">Production Admin</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">MCP • RAG</span>
+            </div>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Amrita Vishwa Vidyapeetham • Institutional Knowledge & Intelligence Platform</p>
+          </div>
+        </div>
 
-      <!-- Server Environment Box -->
-      <div class="pt-4 mt-auto">
-        <div class="card-white rounded-2xl p-4 text-xs text-slate-600 space-y-2.5">
-          <div class="flex items-center justify-between font-bold text-slate-800">
-            <span class="flex items-center space-x-1.5">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-amrita-700"></i>
-              <span>Dual Engines</span>
+        <!-- Live Status, Role Simulator & Lock Button -->
+        <div class="flex items-center space-x-3">
+          <!-- Live System Status Badge -->
+          <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">PROD</span>
-          </div>
-          <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-100">
-            <div class="flex justify-between">
-              <span class="text-slate-500">Vector Embeddings:</span>
-              <span class="text-slate-900 font-mono font-medium">BGE-Small (384d)</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">Sparse Lexical:</span>
-              <span class="text-slate-900 font-mono font-medium">BM25 Okapi</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">Re-ranking:</span>
-              <span class="text-slate-900 font-mono font-medium">Cross-Encoder</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">MCP Protocol:</span>
-              <span class="text-amrita-800 font-mono font-medium">SSE & Stdio</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content Workspace -->
-    <main class="flex-1 min-w-0 space-y-6">
-
-      <!-- =================================================================== -->
-      <!-- TAB 1: OVERVIEW & SYSTEM STATS                                      -->
-      <!-- =================================================================== -->
-      <section id="tab-overview" class="tab-content space-y-6">
-        
-        <!-- KPI Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Documents Card -->
-          <div class="card-white rounded-2xl p-5 card-white-hover">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Indexed Documents</span>
-              <div class="p-2 rounded-xl bg-rose-50 text-amrita-800 border border-rose-100">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-              </div>
-            </div>
-            <div id="stat-docs" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
-              <span class="text-emerald-700 font-semibold flex items-center space-x-0.5">
-                <i data-lucide="check" class="w-3 h-3"></i>
-                <span>100% Parsed</span>
-              </span>
-              <span>• Full Text & Sections</span>
-            </div>
+            <span id="system-status-pill" class="text-slate-600 font-medium">Checking engines...</span>
           </div>
 
-          <!-- Chunks Card -->
-          <div class="card-white rounded-2xl p-5 card-white-hover">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Semantic Chunks</span>
-              <div class="p-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100">
-                <i data-lucide="layers" class="w-5 h-5"></i>
-              </div>
-            </div>
-            <div id="stat-chunks" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
-              <span class="text-indigo-700 font-semibold">Context Enriched</span>
-              <span>• Incremental Cache</span>
-            </div>
-          </div>
-
-          <!-- Grounding Faithfulness -->
-          <div class="card-white rounded-2xl p-5 card-white-hover">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Factual Grounding</span>
-              <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
-                <i data-lucide="shield-check" class="w-5 h-5"></i>
-              </div>
-            </div>
-            <div id="stat-grounding" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
-              <span class="text-emerald-700 font-semibold">NLI Verified</span>
-              <span>• Citation Grounded</span>
-            </div>
-          </div>
-
-          <!-- Query Latency -->
-          <div class="card-white rounded-2xl p-5 card-white-hover">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Latency</span>
-              <div class="p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-100">
-                <i data-lucide="zap" class="w-5 h-5"></i>
-              </div>
-            </div>
-            <div id="stat-latency" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
-            <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
-              <span class="text-slate-700 font-semibold">Hybrid RAG</span>
-              <span>• Dense + BM25 Fusion</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Department Distribution Chart -->
-          <div class="card-white rounded-2xl p-5 lg:col-span-2">
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-              <div>
-                <h3 class="text-sm font-bold text-slate-900">Institutional Departments</h3>
-                <p class="text-xs text-slate-500">Document volume across academic & administrative divisions</p>
-              </div>
-              <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200" id="dept-count-badge">-- Depts</span>
-            </div>
-            <div class="h-64 w-full">
-              <canvas id="deptChart"></canvas>
-            </div>
-          </div>
-
-          <!-- Access Governance Distribution -->
-          <div class="card-white rounded-2xl p-5">
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-              <div>
-                <h3 class="text-sm font-bold text-slate-900">Access Governance</h3>
-                <p class="text-xs text-slate-500">Policy tier distribution</p>
-              </div>
-              <i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>
-            </div>
-            <div class="h-64 w-full flex items-center justify-center">
-              <canvas id="accessChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Engine Health & Persistence Status -->
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <i data-lucide="server" class="w-4 h-4 text-amrita-700"></i>
-              <span>Core Knowledge & Index Subsystems</span>
-            </h3>
-            <button onclick="refreshDashboardStats()" class="text-xs flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              <span>Refresh Stats</span>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">Dense Vector Index</span>
-                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
-              </div>
-              <p class="text-slate-600">FastEmbed BAAI/bge-small-en-v1.5 normalized cosine matrix with incremental caching.</p>
-            </div>
-
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">Sparse BM25 Index</span>
-                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
-              </div>
-              <p class="text-slate-600">Okapi BM25 tokenized dictionary preserving regulations and course codes.</p>
-            </div>
-
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">SQLite Metadata DB</span>
-                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Connected</span>
-              </div>
-              <p class="text-slate-600">Relational lineage catalog, document sections, chunks, audit logs, and ACL policies.</p>
-            </div>
-
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">Model Context Protocol</span>
-                <span class="px-2 py-0.5 rounded text-[10px] bg-rose-100 text-amrita-900 font-bold border border-rose-300">Mounted</span>
-              </div>
-              <p class="text-slate-600">SSE endpoint active under <code class="text-amrita-800 font-semibold">/mcp/sse</code> for Claude & Cursor.</p>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-
-      <!-- =================================================================== -->
-      <!-- TAB 2: TOTAL CONTROL DOCUMENT MANAGER                               -->
-      <!-- =================================================================== -->
-      <section id="tab-documents" class="tab-content hidden space-y-6">
-        
-        <!-- Header & Add Document Button -->
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="folder-cog" class="w-5 h-5 text-amrita-800"></i>
-                <span>Institutional Documents Master Controller</span>
-              </h2>
-              <p class="text-xs text-slate-500">Upload new documents, inspect parsed structures, edit access levels, or delete files</p>
-            </div>
-
-            <!-- Upload Document Trigger Button -->
-            <button onclick="openUploadModal()" class="px-4 py-2.5 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-2 shadow-sm transition-all">
-              <i data-lucide="file-plus-2" class="w-4 h-4"></i>
-              <span>Add New Document</span>
-            </button>
-          </div>
-
-          <!-- Search & Filter Controls -->
-          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-            <div class="relative flex-1 min-w-[200px]">
-              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
-              <input type="text" id="doc-search-query" onkeyup="filterDocumentsCatalog()" placeholder="Search by filename or keyword..." class="w-full bg-slate-50 text-slate-800 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white transition-colors">
-            </div>
-
-            <select id="doc-dept-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
-              <option value="">All Departments</option>
-            </select>
-
-            <select id="doc-access-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
-              <option value="">All Access Policies</option>
-              <option value="admin">Admin Only</option>
+          <!-- Role Simulator Switcher -->
+          <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span class="text-slate-500 hidden sm:inline font-medium">View as:</span>
+            <select id="global-role-select" onchange="updateActiveRole()" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer">
+              <option value="admin">Administrator</option>
               <option value="faculty">Faculty</option>
               <option value="student">Student</option>
               <option value="public">Public</option>
             </select>
-
-            <button onclick="loadDocuments()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors" title="Reload Documents">
-              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            </button>
           </div>
 
-          <!-- Documents Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-200">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
-                <tr>
-                  <th class="p-3">Filename</th>
-                  <th class="p-3">Department</th>
-                  <th class="p-3">Category</th>
-                  <th class="p-3">AY / Ver</th>
-                  <th class="p-3">Sections</th>
-                  <th class="p-3">Access Tier</th>
-                  <th class="p-3 text-right">Administrative Actions</th>
-                </tr>
-              </thead>
-              <tbody id="documents-table-body" class="divide-y divide-slate-100 bg-white">
-                <!-- Rows inserted dynamically -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination Footer -->
-          <div class="flex items-center justify-between text-xs text-slate-500 pt-2">
-            <div>Showing <span id="doc-showing-count" class="text-slate-900 font-bold">0</span> documents</div>
-            <div class="flex items-center space-x-2">
-              <button id="doc-prev-page" onclick="changeDocPage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Previous</button>
-              <span id="doc-page-info" class="text-slate-600 font-medium">Page 1</span>
-              <button id="doc-next-page" onclick="changeDocPage(1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Next</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Document Version Comparison Tool -->
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-            <i data-lucide="git-compare" class="w-4 h-4 text-indigo-700"></i>
-            <span>Document & Policy Version Comparison Inspector</span>
-          </h3>
-          <p class="text-xs text-slate-500">Compare revisions between regulations or syllabus versions on a specific ordinance</p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input type="text" id="compare-doc1" placeholder="Doc ID 1 (e.g. 0e9e693151be)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
-            <input type="text" id="compare-doc2" placeholder="Doc ID 2 (e.g. 3a61d2dfbd68)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
-            <input type="text" id="compare-topic" placeholder="Topic filter (e.g. Attendance, Malpractice)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
-          </div>
-          <button onclick="executeCompareDocs()" class="px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center space-x-1.5 transition-colors">
-            <i data-lucide="split" class="w-3.5 h-3.5"></i>
-            <span>Compare Versions</span>
+          <!-- Lock Dashboard / Logout Button -->
+          <button onclick="lockDashboard()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-amrita-800 border border-slate-200 transition-colors" title="Lock and return to password screen">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Lock Console</span>
           </button>
 
-          <div id="compare-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
-            <!-- Populated dynamically -->
+          <!-- Swagger Docs Link -->
+          <a href="/docs" target="_blank" class="text-xs flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium transition-colors">
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span class="hidden sm:inline">API Docs</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Body -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col md:flex-row gap-6">
+
+      <!-- Sidebar Navigation -->
+      <aside class="w-full md:w-64 shrink-0 flex flex-col space-y-1">
+        <nav class="space-y-1 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+          <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amrita-900 text-white shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Overview & Stats</span>
+          </button>
+          <button onclick="switchTab('documents')" id="nav-documents" class="tab-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <span class="flex items-center space-x-3">
+              <i data-lucide="folder-search" class="w-4 h-4"></i>
+              <span>Documents Manager</span>
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-amrita-800 font-bold border border-rose-200" id="sidebar-doc-count">--</span>
+          </button>
+          <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>Grounded Q&A Studio</span>
+          </button>
+          <button onclick="switchTab('retrieval')" id="nav-retrieval" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="binary" class="w-4 h-4"></i>
+            <span>Hybrid RAG Inspector</span>
+          </button>
+          <button onclick="switchTab('ingestion')" id="nav-ingestion" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Ingestion & Index Bus</span>
+          </button>
+          <button onclick="switchTab('telemetry')" id="nav-telemetry" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            <span>Telemetry & Audit</span>
+          </button>
+          <button onclick="switchTab('mcp')" id="nav-mcp" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+            <span>MCP & Developer Hub</span>
+          </button>
+        </nav>
+
+        <!-- Server Environment Box -->
+        <div class="pt-4 mt-auto">
+          <div class="card-white rounded-2xl p-4 text-xs text-slate-600 space-y-2.5">
+            <div class="flex items-center justify-between font-bold text-slate-800">
+              <span class="flex items-center space-x-1.5">
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-amrita-700"></i>
+                <span>Dual Engines</span>
+              </span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">PROD</span>
+            </div>
+            <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-100">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Vector Embeddings:</span>
+                <span class="text-slate-900 font-mono font-medium">BGE-Small (384d)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Sparse Lexical:</span>
+                <span class="text-slate-900 font-mono font-medium">BM25 Okapi</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Re-ranking:</span>
+                <span class="text-slate-900 font-mono font-medium">Cross-Encoder</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">MCP Protocol:</span>
+                <span class="text-amrita-800 font-mono font-medium">SSE & Stdio</span>
+              </div>
+            </div>
           </div>
         </div>
+      </aside>
 
-      </section>
+      <!-- Main Dynamic Workspace -->
+      <main class="flex-1 min-w-0 space-y-6">
 
-
-      <!-- =================================================================== -->
-      <!-- TAB 3: GROUNDED Q&A STUDIO                                          -->
-      <!-- =================================================================== -->
-      <section id="tab-chat" class="tab-content hidden space-y-6">
-        
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="message-square" class="w-5 h-5 text-amrita-800"></i>
-                <span>Grounded Institutional Reasoning Engine</span>
-              </h2>
-              <p class="text-xs text-slate-500">Formulates verified institutional answers backed strictly by verified citations</p>
+        <!-- ================================================================= -->
+        <!-- TAB 1: OVERVIEW & SYSTEM STATS                                    -->
+        <!-- ================================================================= -->
+        <section id="tab-overview" class="tab-content space-y-6">
+          
+          <!-- KPI Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Documents Card -->
+            <div class="card-white rounded-2xl p-5 card-white-hover">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Indexed Documents</span>
+                <div class="p-2 rounded-xl bg-rose-50 text-amrita-800 border border-rose-100">
+                  <i data-lucide="file-text" class="w-5 h-5"></i>
+                </div>
+              </div>
+              <div id="stat-docs" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+              <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+                <span class="text-emerald-700 font-semibold flex items-center space-x-0.5">
+                  <i data-lucide="check" class="w-3 h-3"></i>
+                  <span>100% Parsed</span>
+                </span>
+                <span>• Full Text & Sections</span>
+              </div>
             </div>
-            
-            <div class="flex items-center space-x-2">
-              <select id="chat-dept-filter" class="bg-slate-50 text-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-amrita-700">
+
+            <!-- Chunks Card -->
+            <div class="card-white rounded-2xl p-5 card-white-hover">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Semantic Chunks</span>
+                <div class="p-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100">
+                  <i data-lucide="layers" class="w-5 h-5"></i>
+                </div>
+              </div>
+              <div id="stat-chunks" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+              <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+                <span class="text-indigo-700 font-semibold">Context Enriched</span>
+                <span>• Incremental Cache</span>
+              </div>
+            </div>
+
+            <!-- Grounding Faithfulness -->
+            <div class="card-white rounded-2xl p-5 card-white-hover">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Factual Grounding</span>
+                <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+              </div>
+              <div id="stat-grounding" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+              <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+                <span class="text-emerald-700 font-semibold">NLI Verified</span>
+                <span>• Citation Grounded</span>
+              </div>
+            </div>
+
+            <!-- Query Latency -->
+            <div class="card-white rounded-2xl p-5 card-white-hover">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Latency</span>
+                <div class="p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-100">
+                  <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+              </div>
+              <div id="stat-latency" class="text-3xl font-black text-slate-900 tracking-tight">--</div>
+              <div class="mt-2 text-xs text-slate-500 flex items-center space-x-1">
+                <span class="text-slate-700 font-semibold">Hybrid RAG</span>
+                <span>• Dense + BM25 Fusion</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card-white rounded-2xl p-5 lg:col-span-2">
+              <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Institutional Departments</h3>
+                  <p class="text-xs text-slate-500">Document volume across academic & administrative divisions</p>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200" id="dept-count-badge">-- Depts</span>
+              </div>
+              <div class="h-64 w-full">
+                <canvas id="deptChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card-white rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Access Governance</h3>
+                  <p class="text-xs text-slate-500">Policy tier distribution</p>
+                </div>
+                <i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>
+              </div>
+              <div class="h-64 w-full flex items-center justify-center">
+                <canvas id="accessChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Engine Health & Persistence Status -->
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="server" class="w-4 h-4 text-amrita-700"></i>
+                <span>Core Knowledge & Index Subsystems</span>
+              </h3>
+              <button onclick="refreshDashboardStats()" class="text-xs flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Refresh Stats</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-800">Dense Vector Index</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
+                </div>
+                <p class="text-slate-600">FastEmbed BAAI/bge-small-en-v1.5 normalized cosine matrix with incremental caching.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-800">Sparse BM25 Index</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Active</span>
+                </div>
+                <p class="text-slate-600">Okapi BM25 tokenized dictionary preserving regulations and course codes.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-800">SQLite Metadata DB</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">Connected</span>
+                </div>
+                <p class="text-slate-600">Relational lineage catalog, document sections, chunks, audit logs, and ACL policies.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-800">Model Context Protocol</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] bg-rose-100 text-amrita-900 font-bold border border-rose-300">Mounted</span>
+                </div>
+                <p class="text-slate-600">SSE endpoint active under <code class="text-amrita-800 font-semibold">/mcp/sse</code> for Claude & Cursor.</p>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: TOTAL CONTROL DOCUMENT MANAGER                             -->
+        <!-- ================================================================= -->
+        <section id="tab-documents" class="tab-content hidden space-y-6">
+          
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <i data-lucide="folder-cog" class="w-5 h-5 text-amrita-800"></i>
+                  <span>Institutional Documents Master Controller</span>
+                </h2>
+                <p class="text-xs text-slate-500">Upload new documents, inspect parsed structures, edit access levels, or delete files</p>
+              </div>
+
+              <!-- Upload Document Trigger Button -->
+              <button onclick="openUploadModal()" class="px-4 py-2.5 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-2 shadow-sm transition-all">
+                <i data-lucide="file-plus-2" class="w-4 h-4"></i>
+                <span>Add New Document</span>
+              </button>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+              <div class="relative flex-1 min-w-[200px]">
+                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
+                <input type="text" id="doc-search-query" onkeyup="filterDocumentsCatalog()" placeholder="Search by filename or keyword..." class="w-full bg-slate-50 text-slate-800 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white transition-colors">
+              </div>
+
+              <select id="doc-dept-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
                 <option value="">All Departments</option>
               </select>
-            </div>
-          </div>
 
-          <!-- Suggested Prompt Chips -->
-          <div class="flex flex-wrap gap-2 pt-1">
-            <span class="text-xs text-slate-400 self-center font-medium">Sample Queries:</span>
-            <button onclick="setChatPrompt('What is the minimum attendance requirement for writing end-semester exams?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
-              Minimum attendance requirement?
-            </button>
-            <button onclick="setChatPrompt('What are the hostel check-in timings and leave policies?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
-              Hostel leave policies?
-            </button>
-            <button onclick="setChatPrompt('What are the regulations regarding examination malpractice and committees?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
-              Exam malpractice rules?
-            </button>
-            <button onclick="setChatPrompt('Find details on curriculum and syllabus structure for B.Tech CSE')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
-              B.Tech CSE Syllabus?
-            </button>
-          </div>
+              <select id="doc-access-select" onchange="filterDocumentsCatalog()" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700">
+                <option value="">All Access Policies</option>
+                <option value="student">Student</option>
+                <option value="faculty">Faculty</option>
+                <option value="admin">Admin Only</option>
+                <option value="public">Public</option>
+              </select>
 
-          <!-- Query Input Area -->
-          <div class="relative">
-            <textarea id="chat-input" rows="3" placeholder="Type your institutional question here... (e.g. grading formula, attendance threshold, hostel curfew)" class="w-full bg-slate-50 text-slate-900 rounded-xl p-3.5 pr-28 text-sm border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white resize-none transition-colors"></textarea>
-            <button id="chat-submit-btn" onclick="executeQuestion()" class="absolute right-3 bottom-3.5 px-4 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all">
-              <i data-lucide="send" class="w-3.5 h-3.5"></i>
-              <span>Ask AmritaGPT</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Answer / Evidence Display Card -->
-        <div id="chat-result-container" class="hidden space-y-4">
-          <div class="card-white rounded-2xl p-6 space-y-4">
-            <!-- Header with Grounding Badge -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span id="chat-intent-badge" class="text-xs font-bold uppercase tracking-wider text-amrita-800">Academic Regulation</span>
-                <span class="text-slate-300">•</span>
-                <span id="chat-latency-badge" class="text-xs text-slate-500">-- ms</span>
-              </div>
-
-              <div class="flex items-center space-x-3">
-                <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 text-xs">
-                  <span class="text-slate-500">Grounding Confidence:</span>
-                  <span id="chat-grounding-score" class="font-black text-emerald-700">--%</span>
-                </div>
-                <div id="chat-faithful-badge" class="flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
-                  <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                  <span>Faithful & Grounded</span>
-                </div>
-              </div>
+              <button onclick="loadDocuments()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors" title="Reload Documents">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              </button>
             </div>
 
-            <!-- Rendered Answer Text -->
-            <div id="chat-answer-body" class="prose max-w-none text-slate-800 text-sm leading-relaxed space-y-2">
-              <!-- Content rendered via Marked -->
-            </div>
-
-            <!-- Citations Block -->
-            <div class="pt-4 border-t border-slate-100">
-              <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
-                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amrita-700"></i>
-                <span>Authoritative Institutional Citations</span>
-              </h4>
-              <div id="chat-citations-list" class="space-y-1.5 text-xs text-slate-700">
-                <!-- Citation entries -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Retrieved Source Evidence Accordion -->
-          <div class="card-white rounded-2xl p-5">
-            <button onclick="toggleEvidenceAccordion()" class="w-full flex items-center justify-between text-left text-xs font-bold text-slate-800 uppercase tracking-wider">
-              <span class="flex items-center space-x-2">
-                <i data-lucide="layers" class="w-4 h-4 text-indigo-700"></i>
-                <span>Retrieved Evidence Passages (<span id="chat-source-count">0</span>)</span>
-              </span>
-              <i id="evidence-chevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
-            </button>
-
-            <div id="evidence-accordion-body" class="hidden mt-4 space-y-3 pt-3 border-t border-slate-100">
-              <!-- Source Cards populated dynamically -->
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-
-      <!-- =================================================================== -->
-      <!-- TAB 4: HYBRID RETRIEVAL INSPECTOR                                   -->
-      <!-- =================================================================== -->
-      <section id="tab-retrieval" class="tab-content hidden space-y-6">
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-              <i data-lucide="binary" class="w-5 h-5 text-indigo-700"></i>
-              <span>Multi-Stage Hybrid RAG Inspector</span>
-            </h2>
-            <p class="text-xs text-slate-500">Visualizes Dense Vectors + BM25 Lexical + Reciprocal Rank Fusion (RRF) + Cross-Encoder</p>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input type="text" id="inspect-query" placeholder="Enter test query (e.g. 'R.14 grading criteria 2023')" class="flex-1 bg-slate-50 text-slate-900 rounded-xl px-4 py-2.5 text-sm border border-slate-200 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors">
-            <select id="inspect-role" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-              <option value="student">Role: Student</option>
-              <option value="faculty">Role: Faculty</option>
-              <option value="admin">Role: Admin</option>
-              <option value="public">Role: Public</option>
-            </select>
-            <button onclick="executeRetrievalInspect()" class="px-5 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition-colors">
-              <i data-lucide="search" class="w-4 h-4"></i>
-              <span>Inspect Retrieval</span>
-            </button>
-          </div>
-        </div>
-
-        <div id="inspect-results-container" class="hidden space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="card-white rounded-xl p-4">
-              <span class="text-xs text-slate-500 font-medium">Detected Query Intent</span>
-              <div id="inspect-intent" class="text-lg font-black text-slate-900 mt-1">--</div>
-            </div>
-            <div class="card-white rounded-xl p-4">
-              <span class="text-xs text-slate-500 font-medium">Total Fused Candidates</span>
-              <div id="inspect-total-candidates" class="text-lg font-black text-indigo-700 mt-1">--</div>
-            </div>
-            <div class="card-white rounded-xl p-4">
-              <span class="text-xs text-slate-500 font-medium">Selected Top-K Evidence</span>
-              <div id="inspect-selected-k" class="text-lg font-black text-emerald-700 mt-1">--</div>
-            </div>
-          </div>
-
-          <div class="card-white rounded-2xl p-5">
-            <h3 class="text-sm font-bold text-slate-900 mb-3">Reranked Candidate Chunks</h3>
+            <!-- Documents Table -->
             <div class="overflow-x-auto rounded-xl border border-slate-200">
               <table class="w-full text-left text-xs text-slate-700">
                 <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3">Rank</th>
-                    <th class="p-3">Document</th>
+                    <th class="p-3">Filename</th>
                     <th class="p-3">Department</th>
-                    <th class="p-3">Section / Page</th>
-                    <th class="p-3">Rerank Score</th>
+                    <th class="p-3">Category</th>
+                    <th class="p-3">AY / Ver</th>
+                    <th class="p-3">Sections</th>
                     <th class="p-3">Access Tier</th>
+                    <th class="p-3 text-right">Administrative Actions</th>
                   </tr>
                 </thead>
-                <tbody id="inspect-table-body" class="divide-y divide-slate-100 bg-white">
+                <tbody id="documents-table-body" class="divide-y divide-slate-100 bg-white">
                   <!-- Rows inserted dynamically -->
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      </section>
 
-
-      <!-- =================================================================== -->
-      <!-- TAB 5: INGESTION & INDEX BUS                                        -->
-      <!-- =================================================================== -->
-      <section id="tab-ingestion" class="tab-content hidden space-y-6">
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="hard-drive-download" class="w-5 h-5 text-emerald-700"></i>
-                <span>Incremental Ingestion Engine Bus</span>
-              </h2>
-              <p class="text-xs text-slate-500">Scans institutional directory, enforces idempotency, and reuses cached embeddings</p>
-            </div>
-            <span id="ingestion-live-status-badge" class="px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-700 font-bold border border-slate-200">Idle</span>
-          </div>
-
-          <!-- Controls -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <span class="text-xs font-bold text-slate-700">Ingestion Mode</span>
+            <!-- Pagination Footer -->
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-2">
+              <div>Showing <span id="doc-showing-count" class="text-slate-900 font-bold">0</span> documents</div>
               <div class="flex items-center space-x-2">
-                <input type="checkbox" id="ingest-force" class="rounded border-slate-300 text-amrita-700 focus:ring-amrita-700">
-                <label for="ingest-force" class="text-xs text-slate-800 font-semibold cursor-pointer">Force Re-index (Bypass Cache)</label>
+                <button id="doc-prev-page" onclick="changeDocPage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Previous</button>
+                <span id="doc-page-info" class="text-slate-600 font-medium">Page 1</span>
+                <button id="doc-next-page" onclick="changeDocPage(1)" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 disabled:opacity-50">Next</button>
               </div>
-              <p class="text-[11px] text-slate-500">Default uses the incremental cache to skip unmodified chunks in seconds.</p>
+            </div>
+          </div>
+
+          <!-- Document Version Comparison Tool -->
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <i data-lucide="git-compare" class="w-4 h-4 text-indigo-700"></i>
+              <span>Document & Policy Version Comparison Inspector</span>
+            </h3>
+            <p class="text-xs text-slate-500">Compare revisions between regulations or syllabus versions on a specific ordinance</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input type="text" id="compare-doc1" placeholder="Doc ID 1 (e.g. 0e9e693151be)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+              <input type="text" id="compare-doc2" placeholder="Doc ID 2 (e.g. 3a61d2dfbd68)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+              <input type="text" id="compare-topic" placeholder="Topic filter (e.g. Attendance, Malpractice)" class="bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-200">
+            </div>
+            <button onclick="executeCompareDocs()" class="px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center space-x-1.5 transition-colors">
+              <i data-lucide="split" class="w-3.5 h-3.5"></i>
+              <span>Compare Versions</span>
+            </button>
+
+            <div id="compare-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: GROUNDED Q&A STUDIO                                        -->
+        <!-- ================================================================= -->
+        <section id="tab-chat" class="tab-content hidden space-y-6">
+          
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <i data-lucide="message-square" class="w-5 h-5 text-amrita-800"></i>
+                  <span>Grounded Institutional Reasoning Engine</span>
+                </h2>
+                <p class="text-xs text-slate-500">Formulates verified institutional answers backed strictly by verified citations</p>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <select id="chat-dept-filter" class="bg-slate-50 text-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-amrita-700">
+                  <option value="">All Departments</option>
+                </select>
+              </div>
             </div>
 
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <span class="text-xs font-bold text-slate-700">File Limit (Optional)</span>
-              <input type="number" id="ingest-max-files" placeholder="e.g. 50 (leave empty for all)" class="w-full bg-white text-slate-800 text-xs px-3 py-1.5 rounded-lg border border-slate-200">
-              <p class="text-[11px] text-slate-500">Limit number of files for rapid testing.</p>
+            <!-- Suggested Prompt Chips -->
+            <div class="flex flex-wrap gap-2 pt-1">
+              <span class="text-xs text-slate-400 self-center font-medium">Sample Queries:</span>
+              <button onclick="setChatPrompt('What is the minimum attendance requirement for writing end-semester exams?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
+                Minimum attendance requirement?
+              </button>
+              <button onclick="setChatPrompt('What are the hostel check-in timings and leave policies?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
+                Hostel leave policies?
+              </button>
+              <button onclick="setChatPrompt('What are the regulations regarding examination malpractice and committees?')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
+                Exam malpractice rules?
+              </button>
+              <button onclick="setChatPrompt('Find details on curriculum and syllabus structure for B.Tech CSE')" class="text-xs px-3 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:border-amrita-500 hover:bg-rose-50 hover:text-amrita-800 transition-colors">
+                B.Tech CSE Syllabus?
+              </button>
             </div>
 
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-              <span class="text-xs font-bold text-slate-700">Execute Ingestion</span>
-              <button id="btn-trigger-ingestion" onclick="triggerIngestionRun()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
-                <i data-lucide="play" class="w-4 h-4"></i>
-                <span>Run Ingestion Pipeline</span>
+            <!-- Query Input Area -->
+            <div class="relative">
+              <textarea id="chat-input" rows="3" placeholder="Type your institutional question here... (e.g. grading formula, attendance threshold, hostel curfew)" class="w-full bg-slate-50 text-slate-900 rounded-xl p-3.5 pr-28 text-sm border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white resize-none transition-colors"></textarea>
+              <button id="chat-submit-btn" onclick="executeQuestion()" class="absolute right-3 bottom-3.5 px-4 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                <span>Ask AmritaGPT</span>
               </button>
             </div>
           </div>
 
-          <!-- Console Output -->
-          <div class="space-y-2 pt-2">
-            <div class="flex items-center justify-between text-xs text-slate-500">
-              <span class="font-mono font-bold">Ingestion Bus Console Output</span>
-              <button onclick="clearIngestLog()" class="hover:text-slate-800 font-semibold">Clear</button>
+          <!-- Answer / Evidence Display Card -->
+          <div id="chat-result-container" class="hidden space-y-4">
+            <div class="card-white rounded-2xl p-6 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span id="chat-intent-badge" class="text-xs font-bold uppercase tracking-wider text-amrita-800">Academic Regulation</span>
+                  <span class="text-slate-300">•</span>
+                  <span id="chat-latency-badge" class="text-xs text-slate-500">-- ms</span>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                  <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 text-xs">
+                    <span class="text-slate-500">Grounding Confidence:</span>
+                    <span id="chat-grounding-score" class="font-black text-emerald-700">--%</span>
+                  </div>
+                  <div id="chat-faithful-badge" class="flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                    <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                    <span>Faithful & Grounded</span>
+                  </div>
+                </div>
+              </div>
+
+              <div id="chat-answer-body" class="prose max-w-none text-slate-800 text-sm leading-relaxed space-y-2"></div>
+
+              <div class="pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                  <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amrita-700"></i>
+                  <span>Authoritative Institutional Citations</span>
+                </h4>
+                <div id="chat-citations-list" class="space-y-1.5 text-xs text-slate-700"></div>
+              </div>
             </div>
-            <div id="ingestion-console" class="w-full h-56 rounded-xl bg-slate-900 p-4 font-mono text-xs text-emerald-400 overflow-y-auto border border-slate-800 whitespace-pre-wrap">
+
+            <!-- Retrieved Source Evidence Accordion -->
+            <div class="card-white rounded-2xl p-5">
+              <button onclick="toggleEvidenceAccordion()" class="w-full flex items-center justify-between text-left text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <span class="flex items-center space-x-2">
+                  <i data-lucide="layers" class="w-4 h-4 text-indigo-700"></i>
+                  <span>Retrieved Evidence Passages (<span id="chat-source-count">0</span>)</span>
+                </span>
+                <i id="evidence-chevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+              </button>
+
+              <div id="evidence-accordion-body" class="hidden mt-4 space-y-3 pt-3 border-t border-slate-100"></div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: HYBRID RETRIEVAL INSPECTOR                                 -->
+        <!-- ================================================================= -->
+        <section id="tab-retrieval" class="tab-content hidden space-y-6">
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div>
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="binary" class="w-5 h-5 text-indigo-700"></i>
+                <span>Multi-Stage Hybrid RAG Inspector</span>
+              </h2>
+              <p class="text-xs text-slate-500">Visualizes Dense Vectors + BM25 Lexical + Reciprocal Rank Fusion (RRF) + Cross-Encoder</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="text" id="inspect-query" placeholder="Enter test query (e.g. 'R.14 grading criteria 2023')" class="flex-1 bg-slate-50 text-slate-900 rounded-xl px-4 py-2.5 text-sm border border-slate-200 focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors">
+              <select id="inspect-role" class="bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="student">Role: Student</option>
+                <option value="faculty">Role: Faculty</option>
+                <option value="admin">Role: Admin</option>
+                <option value="public">Role: Public</option>
+              </select>
+              <button onclick="executeRetrievalInspect()" class="px-5 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition-colors">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span>Inspect Retrieval</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="inspect-results-container" class="hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="card-white rounded-xl p-4">
+                <span class="text-xs text-slate-500 font-medium">Detected Query Intent</span>
+                <div id="inspect-intent" class="text-lg font-black text-slate-900 mt-1">--</div>
+              </div>
+              <div class="card-white rounded-xl p-4">
+                <span class="text-xs text-slate-500 font-medium">Total Fused Candidates</span>
+                <div id="inspect-total-candidates" class="text-lg font-black text-indigo-700 mt-1">--</div>
+              </div>
+              <div class="card-white rounded-xl p-4">
+                <span class="text-xs text-slate-500 font-medium">Selected Top-K Evidence</span>
+                <div id="inspect-selected-k" class="text-lg font-black text-emerald-700 mt-1">--</div>
+              </div>
+            </div>
+
+            <div class="card-white rounded-2xl p-5">
+              <h3 class="text-sm font-bold text-slate-900 mb-3">Reranked Candidate Chunks</h3>
+              <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                    <tr>
+                      <th class="p-3">Rank</th>
+                      <th class="p-3">Document</th>
+                      <th class="p-3">Department</th>
+                      <th class="p-3">Section / Page</th>
+                      <th class="p-3">Rerank Score</th>
+                      <th class="p-3">Access Tier</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inspect-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: INGESTION & INDEX BUS                                      -->
+        <!-- ================================================================= -->
+        <section id="tab-ingestion" class="tab-content hidden space-y-6">
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <i data-lucide="hard-drive-download" class="w-5 h-5 text-emerald-700"></i>
+                  <span>Incremental Ingestion Engine Bus</span>
+                </h2>
+                <p class="text-xs text-slate-500">Scans institutional directory, enforces idempotency, and reuses cached embeddings</p>
+              </div>
+              <span id="ingestion-live-status-badge" class="px-3 py-1 rounded-full text-xs bg-slate-100 text-slate-700 font-bold border border-slate-200">Idle</span>
+            </div>
+
+            <!-- Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-slate-700">Ingestion Mode</span>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" id="ingest-force" class="rounded border-slate-300 text-amrita-700 focus:ring-amrita-700">
+                  <label for="ingest-force" class="text-xs text-slate-800 font-semibold cursor-pointer">Force Re-index (Bypass Cache)</label>
+                </div>
+                <p class="text-[11px] text-slate-500">Default uses the incremental cache to skip unmodified chunks in seconds.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-slate-700">File Limit (Optional)</span>
+                <input type="number" id="ingest-max-files" placeholder="e.g. 50 (leave empty for all)" class="w-full bg-white text-slate-800 text-xs px-3 py-1.5 rounded-lg border border-slate-200">
+                <p class="text-[11px] text-slate-500">Limit number of files for rapid testing.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                <span class="text-xs font-bold text-slate-700">Execute Ingestion</span>
+                <button id="btn-trigger-ingestion" onclick="triggerIngestionRun()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
+                  <i data-lucide="play" class="w-4 h-4"></i>
+                  <span>Run Ingestion Pipeline</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Console Output -->
+            <div class="space-y-2 pt-2">
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span class="font-mono font-bold">Ingestion Bus Console Output</span>
+                <button onclick="clearIngestLog()" class="hover:text-slate-800 font-semibold">Clear</button>
+              </div>
+              <div id="ingestion-console" class="w-full h-56 rounded-xl bg-slate-900 p-4 font-mono text-xs text-emerald-400 overflow-y-auto border border-slate-800 whitespace-pre-wrap">
 AmritaGPT Ingestion Bus ready.
 Incremental embedding cache enabled. Unmodified documents will be skipped automatically.
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
 
-      <!-- =================================================================== -->
-      <!-- TAB 6: TELEMETRY & AUDIT LOGS                                       -->
-      <!-- =================================================================== -->
-      <section id="tab-telemetry" class="tab-content hidden space-y-6">
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-            <div>
+        <!-- ================================================================= -->
+        <!-- TAB 6: TELEMETRY & AUDIT LOGS                                     -->
+        <!-- ================================================================= -->
+        <section id="tab-telemetry" class="tab-content hidden space-y-6">
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <i data-lucide="activity" class="w-5 h-5 text-indigo-700"></i>
+                  <span>Query Telemetry & Audit Trail</span>
+                </h2>
+                <p class="text-xs text-slate-500">Real-time observability into user queries, grounding confidence, and latency</p>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <button onclick="runRagBenchmark()" id="btn-benchmark" class="px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-bold flex items-center space-x-1.5 transition-colors">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Run Golden Benchmark</span>
+                </button>
+                <button onclick="loadTelemetryLogs()" class="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors">
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Benchmark Panel -->
+            <div id="benchmark-results-panel" class="hidden p-4 rounded-xl bg-indigo-50/60 border border-indigo-200 space-y-3">
+              <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Golden RAG Evaluation Benchmark Results</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 1</span>
+                  <div id="bench-recall1" class="text-base font-black text-emerald-700">--</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 5</span>
+                  <div id="bench-recall5" class="text-base font-black text-emerald-700">--</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold">MRR</span>
+                  <div id="bench-mrr" class="text-base font-black text-indigo-700">--</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold">Mean Latency</span>
+                  <div id="bench-latency" class="text-base font-black text-amber-700">--</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold">Grounded Acc</span>
+                  <div id="bench-faithfulness" class="text-base font-black text-amrita-800">--</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Telemetry Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Timestamp</th>
+                    <th class="p-3">Query</th>
+                    <th class="p-3">Role</th>
+                    <th class="p-3">Intent</th>
+                    <th class="p-3">Dense</th>
+                    <th class="p-3">BM25</th>
+                    <th class="p-3">Grounding</th>
+                    <th class="p-3">Latency</th>
+                  </tr>
+                </thead>
+                <tbody id="telemetry-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ================================================================= -->
+        <!-- TAB 7: MCP & DEVELOPER HUB                                        -->
+        <!-- ================================================================= -->
+        <section id="tab-mcp" class="tab-content hidden space-y-6">
+          <div class="card-white rounded-2xl p-5 space-y-4">
+            <div class="pb-3 border-b border-slate-100">
               <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="activity" class="w-5 h-5 text-indigo-700"></i>
-                <span>Query Telemetry & Audit Trail</span>
+                <i data-lucide="cpu" class="w-5 h-5 text-amrita-800"></i>
+                <span>Model Context Protocol (MCP) Integration Hub</span>
               </h2>
-              <p class="text-xs text-slate-500">Real-time observability into user queries, grounding confidence, and latency</p>
+              <p class="text-xs text-slate-500">Connect Claude Desktop, Cursor, and Antigravity directly to AmritaGPT tools</p>
             </div>
 
-            <div class="flex items-center space-x-2">
-              <button onclick="runRagBenchmark()" id="btn-benchmark" class="px-3.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-bold flex items-center space-x-1.5 transition-colors">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>Run Golden Benchmark</span>
-              </button>
-              <button onclick="loadTelemetryLogs()" class="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors">
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          <!-- Benchmark Panel -->
-          <div id="benchmark-results-panel" class="hidden p-4 rounded-xl bg-indigo-50/60 border border-indigo-200 space-y-3">
-            <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Golden RAG Evaluation Benchmark Results</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
-              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 1</span>
-                <div id="bench-recall1" class="text-base font-black text-emerald-700">--</div>
+            <!-- Endpoint Card -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700">Live MCP Server SSE Endpoint</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono font-bold">200 OK</span>
               </div>
-              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Recall @ 5</span>
-                <div id="bench-recall5" class="text-base font-black text-emerald-700">--</div>
-              </div>
-              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">MRR</span>
-                <div id="bench-mrr" class="text-base font-black text-indigo-700">--</div>
-              </div>
-              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Mean Latency</span>
-                <div id="bench-latency" class="text-base font-black text-amber-700">--</div>
-              </div>
-              <div class="bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-                <span class="text-[10px] text-slate-500 uppercase font-bold">Grounded Acc</span>
-                <div id="bench-faithfulness" class="text-base font-black text-amrita-800">--</div>
+              <div class="flex items-center space-x-2">
+                <input type="text" readonly id="mcp-url-input" value="http://localhost:8000/mcp/sse" class="flex-1 bg-white text-amrita-800 font-mono font-bold text-xs px-3.5 py-2 rounded-lg border border-slate-200">
+                <button onclick="copyMcpUrl()" class="px-3.5 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1 transition-colors">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span id="copy-btn-text">Copy</span>
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Telemetry Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-200">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
-                <tr>
-                  <th class="p-3">Timestamp</th>
-                  <th class="p-3">Query</th>
-                  <th class="p-3">Role</th>
-                  <th class="p-3">Intent</th>
-                  <th class="p-3">Dense</th>
-                  <th class="p-3">BM25</th>
-                  <th class="p-3">Grounding</th>
-                  <th class="p-3">Latency</th>
-                </tr>
-              </thead>
-              <tbody id="telemetry-table-body" class="divide-y divide-slate-100 bg-white">
-                <!-- Rows inserted dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-
-      <!-- =================================================================== -->
-      <!-- TAB 7: MCP & DEVELOPER HUB                                          -->
-      <!-- =================================================================== -->
-      <section id="tab-mcp" class="tab-content hidden space-y-6">
-        <div class="card-white rounded-2xl p-5 space-y-4">
-          <div class="pb-3 border-b border-slate-100">
-            <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-              <i data-lucide="cpu" class="w-5 h-5 text-amrita-800"></i>
-              <span>Model Context Protocol (MCP) Integration Hub</span>
-            </h2>
-            <p class="text-xs text-slate-500">Connect Claude Desktop, Cursor, and Antigravity directly to AmritaGPT tools</p>
-          </div>
-
-          <!-- Endpoint Card -->
-          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-700">Live MCP Server SSE Endpoint</span>
-              <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono font-bold">200 OK</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <input type="text" readonly id="mcp-url-input" value="http://localhost:8000/mcp/sse" class="flex-1 bg-white text-amrita-800 font-mono font-bold text-xs px-3.5 py-2 rounded-lg border border-slate-200">
-              <button onclick="copyMcpUrl()" class="px-3.5 py-2 rounded-lg bg-amrita-800 hover:bg-amrita-900 text-white text-xs font-bold flex items-center space-x-1 transition-colors">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span id="copy-btn-text">Copy</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Config Blocks -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <span class="text-xs font-bold text-slate-800">Claude Desktop / Antigravity Config (SSE)</span>
-              <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
+            <!-- Config Blocks -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-slate-800">Claude Desktop / Antigravity Config (SSE)</span>
+                <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
   "mcpServers": {
     "amritagpt": {
       "url": "http://localhost:8000/mcp/sse",
@@ -810,11 +846,11 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     }
   }
 }</code></pre>
-            </div>
+              </div>
 
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <span class="text-xs font-bold text-slate-800">Stdio Local Process Config</span>
-              <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xs font-bold text-slate-800">Stdio Local Process Config</span>
+                <pre class="bg-white p-3 rounded-lg text-[11px] text-slate-800 font-mono overflow-x-auto border border-slate-200"><code>{
   "mcpServers": {
     "amritagpt": {
       "command": "python",
@@ -825,28 +861,30 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     }
   }
 }</code></pre>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold">
+              <a href="/docs" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
+                <span>Interactive Swagger UI</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+              <a href="/redoc" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
+                <span>ReDoc Specification</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+              <a href="/openapi.json" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
+                <span>OpenAPI 3.1 JSON</span>
+                <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
+              </a>
             </div>
           </div>
+        </section>
 
-          <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold">
-            <a href="/docs" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
-              <span>Interactive Swagger UI</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-            <a href="/redoc" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
-              <span>ReDoc Specification</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-            <a href="/openapi.json" target="_blank" class="text-amrita-800 hover:text-amrita-900 flex items-center space-x-1">
-              <span>OpenAPI 3.1 JSON</span>
-              <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
-            </a>
-          </div>
-        </div>
-      </section>
+      </main>
+    </div>
 
-    </main>
-  </div>
+  </div> <!-- End #main-dashboard-app -->
 
   <!-- ========================================================================= -->
   <!-- MODAL: ADD / UPLOAD NEW DOCUMENT                                          -->
@@ -867,14 +905,11 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       </div>
 
       <form id="upload-form" onsubmit="handleUploadSubmit(event)" class="p-5 space-y-4 text-xs">
-        
-        <!-- File Picker -->
         <div>
           <label class="block font-bold text-slate-700 mb-1">Select File (PDF, DOCX, XLSX, PPTX, TXT)</label>
           <input type="file" id="upload-file-input" required class="w-full text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-50 file:text-amrita-800 hover:file:bg-rose-100 border border-slate-200 rounded-xl p-2 bg-slate-50 cursor-pointer">
         </div>
 
-        <!-- Department Input -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Target Department</label>
@@ -886,7 +921,6 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           </div>
         </div>
 
-        <!-- Year & Access Policy -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Academic Year</label>
@@ -895,15 +929,14 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           <div>
             <label class="block font-bold text-slate-700 mb-1">Access Policy Tier</label>
             <select id="upload-policy-select" class="w-full bg-slate-50 text-slate-800 p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 font-semibold">
-              <option value="student">Student (Students + Faculty + Admin)</option>
+              <option value="student">Student (Standard for All Campus Members)</option>
               <option value="faculty">Faculty (Faculty + Admin Only)</option>
-              <option value="admin">Admin Only (Confidential/HR)</option>
+              <option value="admin">Admin Only (Confidential / HR)</option>
               <option value="public">Public (Open to All)</option>
             </select>
           </div>
         </div>
 
-        <!-- Upload Status Feedback -->
         <div id="upload-feedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
 
         <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
@@ -914,43 +947,6 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           </button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL: ADMIN ACCESS KEY AUTHENTICATION                                    -->
-  <!-- ========================================================================= -->
-  <div id="admin-key-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-        <div>
-          <h3 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-            <i data-lucide="shield-alert" class="w-5 h-5 text-amrita-800"></i>
-            <span>Administrator Verification</span>
-          </h3>
-          <p class="text-xs text-slate-500">Enter administrator credentials to unlock production controls</p>
-        </div>
-        <button onclick="closeAdminKeyModal()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <div class="p-5 space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Administrative Security Key</label>
-          <input type="password" id="input-admin-key" placeholder="Enter AmritaGPT admin key..." class="w-full bg-slate-50 text-slate-900 text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-amrita-700 focus:bg-white font-mono">
-        </div>
-
-        <div id="admin-auth-feedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
-
-        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-          <button onclick="closeAdminKeyModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">Cancel</button>
-          <button onclick="verifyAdminKeySubmit()" class="px-5 py-2 rounded-xl bg-amrita-800 hover:bg-amrita-900 text-white font-bold flex items-center space-x-1.5 shadow-sm">
-            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-            <span>Authenticate Session</span>
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -968,9 +964,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <div id="modal-doc-body" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-700">
-        <!-- Sections populated dynamically -->
-      </div>
+      <div id="modal-doc-body" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-700"></div>
     </div>
   </div>
 
@@ -986,32 +980,120 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     const docPageSize = 15;
     let currentEvidenceData = [];
 
-    // Session Admin Key Storage
+    // Check Authentication on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      checkAuthAndInit();
+    });
+
     function getAdminKey() {
-      return sessionStorage.getItem('amritagpt_admin_key') || 'amrita-admin-2026';
+      return sessionStorage.getItem('amritagpt_admin_key') || '';
     }
 
-    function checkAdminSessionUI() {
-      const key = sessionStorage.getItem('amritagpt_admin_key');
-      const label = document.getElementById('admin-auth-label');
-      const btn = document.getElementById('btn-admin-auth');
-      if (key) {
-        label.textContent = 'Admin Authenticated';
-        btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-      } else {
-        label.textContent = 'Unlock Admin Access';
-        btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-amrita-800 border border-rose-200 hover:bg-rose-100';
+    async function checkAuthAndInit() {
+      const savedKey = getAdminKey();
+      if (!savedKey) {
+        showPasswordGate();
+        return;
+      }
+
+      // Verify stored session key
+      try {
+        const res = await fetch('/api/v1/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin_key: savedKey })
+        });
+
+        if (res.ok) {
+          unlockDashboard();
+        } else {
+          sessionStorage.removeItem('amritagpt_admin_key');
+          showPasswordGate();
+        }
+      } catch (err) {
+        showPasswordGate();
       }
     }
 
-    // Initialize Dashboard
-    document.addEventListener('DOMContentLoaded', () => {
+    function showPasswordGate() {
+      document.getElementById('password-gate-screen').classList.remove('hidden');
+      document.getElementById('main-dashboard-app').classList.add('hidden');
+      document.getElementById('gate-password-input').value = '';
+      document.getElementById('gate-error-banner').classList.add('hidden');
       lucide.createIcons();
-      checkAdminSessionUI();
+    }
+
+    function unlockDashboard() {
+      document.getElementById('password-gate-screen').classList.add('hidden');
+      document.getElementById('main-dashboard-app').classList.remove('hidden');
+      lucide.createIcons();
+
       refreshDashboardStats();
       loadTelemetryLogs();
       loadDocuments();
-    });
+    }
+
+    function lockDashboard() {
+      sessionStorage.removeItem('amritagpt_admin_key');
+      showPasswordGate();
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('gate-password-input');
+      const icon = document.getElementById('gate-eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
+    // Handle Password Gate Login
+    async function handleGateLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('gate-password-input').value.trim();
+      const btn = document.getElementById('btn-gate-submit');
+      const errBanner = document.getElementById('gate-error-banner');
+      const errText = document.getElementById('gate-error-text');
+
+      if (!pwd) return;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Verifying...</span>`;
+      lucide.createIcons();
+      errBanner.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/v1/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin_key: pwd })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || 'Incorrect administrator password.');
+        }
+
+        // Store key and unlock
+        sessionStorage.setItem('amritagpt_admin_key', pwd);
+        unlockDashboard();
+
+      } catch (err) {
+        errText.textContent = err.message;
+        errBanner.classList.remove('hidden');
+        document.getElementById('gate-password-input').focus();
+        document.getElementById('gate-password-input').select();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="unlock" class="w-4 h-4"></i><span>Sign In to Console</span>`;
+        lucide.createIcons();
+      }
+    }
 
     // Tab Switching
     function switchTab(tabId) {
@@ -1105,7 +1187,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           datasets: [{
             label: 'Documents',
             data: data,
-            backgroundColor: 'rgba(190, 18, 60, 0.85)', // Amrita Crimson
+            backgroundColor: 'rgba(190, 18, 60, 0.85)',
             hoverBackgroundColor: 'rgba(159, 18, 57, 1)',
             borderRadius: 6,
             borderSkipped: false
@@ -1148,9 +1230,9 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
           datasets: [{
             data: data,
             backgroundColor: [
-              '#e11d48', // admin: rose
-              '#7c3aed', // faculty: purple
               '#2563eb', // student: blue
+              '#7c3aed', // faculty: purple
+              '#e11d48', // admin: rose
               '#059669'  // public: emerald
             ],
             borderColor: '#ffffff',
@@ -1172,7 +1254,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
     }
 
     // =========================================================================
-    // Document Catalog Management (View, Upload, Delete, Edit)
+    // Document Catalog Management
     // =========================================================================
     async function loadDocuments() {
       try {
@@ -1324,7 +1406,6 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
         feedback.textContent = `✓ Document successfully indexed! ${data.sections_extracted} sections, ${data.chunks_indexed} new chunks embedded.`;
 
-        // Refresh docs and stats
         setTimeout(() => {
           closeUploadModal();
           loadDocuments();
@@ -1335,7 +1416,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200';
         feedback.textContent = `Error: ${err.message}`;
         if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
-          openAdminKeyModal();
+          lockDashboard();
         }
       } finally {
         btn.disabled = false;
@@ -1367,14 +1448,14 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
       } catch (err) {
         alert('Failed to delete document: ' + err.message);
         if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
-          openAdminKeyModal();
+          lockDashboard();
         }
       }
     }
 
     // Edit Document Access Policy
     async function promptEditMetadata(docId, currentPolicy, currentDept) {
-      const newPolicy = prompt(`Update Access Policy for this document:\n(options: public, student, faculty, admin)`, currentPolicy);
+      const newPolicy = prompt(`Update Access Policy for this document:\n(options: student, faculty, admin, public)`, currentPolicy);
       if (!newPolicy || newPolicy === currentPolicy) return;
 
       try {
@@ -1393,43 +1474,6 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         refreshDashboardStats();
       } catch (err) {
         alert('Update error: ' + err.message);
-      }
-    }
-
-    // Admin Auth Modal
-    function openAdminKeyModal() {
-      document.getElementById('admin-key-modal').classList.remove('hidden');
-    }
-    function closeAdminKeyModal() {
-      document.getElementById('admin-key-modal').classList.add('hidden');
-      document.getElementById('admin-auth-feedback').classList.add('hidden');
-    }
-
-    async function verifyAdminKeySubmit() {
-      const key = document.getElementById('input-admin-key').value.trim();
-      const feedback = document.getElementById('admin-auth-feedback');
-      if (!key) return;
-
-      try {
-        const res = await fetch('/api/v1/admin/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ admin_key: key })
-        });
-
-        if (!res.ok) throw new Error('Invalid administrative key');
-        sessionStorage.setItem('amritagpt_admin_key', key);
-        checkAdminSessionUI();
-
-        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        feedback.textContent = '✓ Administrator credentials verified for this session!';
-        feedback.classList.remove('hidden');
-
-        setTimeout(closeAdminKeyModal, 800);
-      } catch (err) {
-        feedback.className = 'p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200';
-        feedback.textContent = err.message;
-        feedback.classList.remove('hidden');
       }
     }
 
@@ -1722,7 +1766,7 @@ Incremental embedding cache enabled. Unmodified documents will be skipped automa
         btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
         lucide.createIcons();
         if (err.message.includes('Administrative privilege') || err.message.includes('403')) {
-          openAdminKeyModal();
+          lockDashboard();
         }
       }
     }

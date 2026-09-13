@@ -426,10 +426,10 @@ def create_app() -> FastAPI:
 
     @app.post("/api/v1/admin/verify", tags=["Admin Controls"], summary="Verify Admin Key")
     def verify_admin(req: Dict[str, str]):
-        """Validates the administrative access key."""
-        key = req.get("admin_key", "")
+        """Validates the administrative access key or password."""
+        key = req.get("admin_key", "") or req.get("password", "")
         if key != ADMIN_API_KEY:
-            raise HTTPException(status_code=401, detail="Invalid administrative security key.")
+            raise HTTPException(status_code=401, detail="Invalid administrative security key or password.")
         return {"authenticated": True, "role": "admin", "institution": "Amrita Vishwa Vidyapeetham"}
 
     def _require_admin(x_admin_key: Optional[str]):
