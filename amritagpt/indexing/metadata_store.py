@@ -244,3 +244,14 @@ class MetadataStore:
                 "avg_query_latency_ms": round(telemetry[1] or 0.0, 2),
                 "avg_grounding_score": round(telemetry[2] or 0.0, 2)
             }
+
+    def get_recent_telemetry(self, limit: int = 50) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM query_telemetry ORDER BY id DESC LIMIT ?",
+                (limit,)
+            )
+            rows = cursor.fetchall()
+            return [dict(r) for r in rows]
+

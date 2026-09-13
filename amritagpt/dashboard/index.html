@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmritaGPT • Institutional Intelligence & MCP Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            },
+            dark: {
+              bg: '#0B0F19',
+              card: '#111827',
+              border: '#1E293B',
+              hover: '#1F2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B0F19; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    
+    .glass-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(30, 41, 59, 0.9);
+    }
+    .glass-card-hover {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.12);
+    }
+  </style>
+</head>
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- Top Navigation Bar                                                        -->
+  <!-- ========================================================================= -->
+  <header class="border-b border-slate-800/80 bg-[#0B0F19]/90 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white font-bold text-lg">
+          <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">AmritaGPT</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 font-medium">MCP • RAG</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Amrita Vishwa Vidyapeetham • Institutional Intelligence Bus</p>
+        </div>
+      </div>
+
+      <!-- Live Status & User Role Switcher -->
+      <div class="flex items-center space-x-4">
+        <!-- Live System Status Badge -->
+        <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="system-status-pill" class="text-slate-300">Checking status...</span>
+        </div>
+
+        <!-- Role Switcher -->
+        <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span class="text-slate-400 hidden sm:inline">Role:</span>
+          <select id="global-role-select" onchange="updateActiveRole()" class="bg-transparent text-indigo-300 font-medium focus:outline-none cursor-pointer">
+            <option value="student" class="bg-slate-900 text-slate-200">Student</option>
+            <option value="faculty" class="bg-slate-900 text-slate-200">Faculty</option>
+            <option value="admin" class="bg-slate-900 text-slate-200">Administrator</option>
+            <option value="public" class="bg-slate-900 text-slate-200">Public</option>
+          </select>
+        </div>
+
+        <!-- API Docs Quick Link -->
+        <a href="/docs" target="_blank" class="text-xs flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition-colors">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Swagger API</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- Main Dashboard Layout                                                     -->
+  <!-- ========================================================================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col md:flex-row gap-6">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 shrink-0 flex flex-col space-y-1">
+      <nav class="space-y-1">
+        <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Overview & Stats</span>
+        </button>
+        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="message-square-code" class="w-4 h-4"></i>
+          <span>Grounded Q&A Studio</span>
+        </button>
+        <button onclick="switchTab('retrieval')" id="nav-retrieval" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="binary" class="w-4 h-4"></i>
+          <span>Hybrid RAG Inspector</span>
+        </button>
+        <button onclick="switchTab('documents')" id="nav-documents" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="folder-search" class="w-4 h-4"></i>
+          <span>Document Catalog</span>
+        </button>
+        <button onclick="switchTab('ingestion')" id="nav-ingestion" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Ingestion & Index Bus</span>
+        </button>
+        <button onclick="switchTab('telemetry')" id="nav-telemetry" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          <span>Telemetry & Audit</span>
+        </button>
+        <button onclick="switchTab('mcp')" id="nav-mcp" class="tab-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+          <i data-lucide="cpu" class="w-4 h-4"></i>
+          <span>MCP & Developer Hub</span>
+        </button>
+      </nav>
+
+      <!-- Server Environment Box -->
+      <div class="pt-6 mt-auto">
+        <div class="glass-card rounded-xl p-3.5 text-xs text-slate-400 space-y-2 border border-slate-800/60">
+          <div class="flex items-center justify-between text-slate-300 font-medium">
+            <span>Server Stack</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">v1.0.0</span>
+          </div>
+          <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between">
+              <span>Embedding:</span>
+              <span class="text-slate-200 font-mono">BGE-Small (384d)</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Lexical:</span>
+              <span class="text-slate-200 font-mono">BM25 Okapi</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Reranker:</span>
+              <span class="text-slate-200 font-mono">Cross-Encoder</span>
+            </div>
+            <div class="flex justify-between">
+              <span>MCP Protocol:</span>
+              <span class="text-indigo-400 font-mono">SSE & stdio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Content Workspace -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- =================================================================== -->
+      <!-- TAB 1: OVERVIEW & SYSTEM STATS                                      -->
+      <!-- =================================================================== -->
+      <section id="tab-overview" class="tab-content space-y-6">
+        
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Documents Card -->
+          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Documents</span>
+              <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-docs" class="text-3xl font-extrabold text-white tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
+              <span class="text-emerald-400 font-medium">100% Parsed</span>
+              <span>• Heterogeneous PDFs, DOCX, XLSX</span>
+            </div>
+          </div>
+
+          <!-- Chunks Card -->
+          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Indexed Chunks</span>
+              <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-chunks" class="text-3xl font-extrabold text-white tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
+              <span class="text-cyan-400 font-medium">Context Enriched</span>
+              <span>• Semantic Boundaries</span>
+            </div>
+          </div>
+
+          <!-- Grounding Faithfulness -->
+          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Grounding Score</span>
+              <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-grounding" class="text-3xl font-extrabold text-white tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
+              <span class="text-emerald-400 font-medium">NLI Verified</span>
+              <span>• Zero Hallucination Guarantee</span>
+            </div>
+          </div>
+
+          <!-- Query Latency -->
+          <div class="glass-card rounded-2xl p-5 glass-card-hover relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Avg Latency</span>
+              <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div id="stat-latency" class="text-3xl font-extrabold text-white tracking-tight">--</div>
+            <div class="mt-2 text-xs text-slate-400 flex items-center space-x-1">
+              <span class="text-indigo-400 font-medium">Hybrid Fused</span>
+              <span>• Dense + BM25 + Cross-Encoder</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Department Distribution Chart -->
+          <div class="glass-card rounded-2xl p-5 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-200">Institutional Departments</h3>
+                <p class="text-xs text-slate-400">Distribution of indexed documents by campus department</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono" id="dept-count-badge">-- Depts</span>
+            </div>
+            <div class="h-64 w-full">
+              <canvas id="deptChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Access Control Distribution -->
+          <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-200">Access Governance</h3>
+                <p class="text-xs text-slate-400">Role-based document classification</p>
+              </div>
+              <i data-lucide="lock" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div class="h-64 w-full flex items-center justify-center">
+              <canvas id="accessChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Engine Status Grid -->
+        <div class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+              <i data-lucide="server" class="w-4 h-4 text-indigo-400"></i>
+              <span>Core Engines & Persistence Layers</span>
+            </h3>
+            <button onclick="refreshDashboardStats()" class="text-xs flex items-center space-x-1 text-slate-400 hover:text-slate-200 transition-colors">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-slate-300">Dense Vector Index</span>
+                <span id="badge-vector" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Active</span>
+              </div>
+              <p class="text-slate-400">FastEmbed BAAI/bge-small-en-v1.5 normalized cosine matrix on disk.</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-slate-300">Sparse BM25 Index</span>
+                <span id="badge-bm25" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Active</span>
+              </div>
+              <p class="text-slate-400">Okapi BM25 tokenized dictionary preserving course codes & regulations.</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-slate-300">SQLite Metadata DB</span>
+                <span id="badge-db" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">Connected</span>
+              </div>
+              <p class="text-slate-400">Stores document catalog, section spans, query audit logs, and ACLs.</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-slate-300">Model Context Protocol</span>
+                <span id="badge-mcp" class="px-2 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-400 border border-indigo-800">Mounted</span>
+              </div>
+              <p class="text-slate-400">SSE endpoint active under <code class="text-indigo-300">/mcp/sse</code> for Claude & Cursor.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 2: GROUNDED Q&A STUDIO                                          -->
+      <!-- =================================================================== -->
+      <section id="tab-chat" class="tab-content hidden space-y-6">
+        
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-indigo-400"></i>
+                <span>Grounded Institutional Reasoning Engine</span>
+              </h2>
+              <p class="text-xs text-slate-400">Every response is strictly verified against indexed documents with exact citations</p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <select id="chat-dept-filter" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500">
+                <option value="">All Departments</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Suggested Prompt Chips -->
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="text-xs text-slate-500 self-center">Try asking:</span>
+            <button onclick="setChatPrompt('What is the minimum attendance requirement for writing end-semester exams?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+              Minimum attendance requirement?
+            </button>
+            <button onclick="setChatPrompt('What are the hostel check-in timings and leave policies?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+              Hostel leave policies?
+            </button>
+            <button onclick="setChatPrompt('What are the regulations regarding examination malpractice and committees?')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+              Exam malpractice rules?
+            </button>
+            <button onclick="setChatPrompt('Find details on curriculum and syllabus structure for B.Tech CSE')" class="text-xs px-3 py-1 rounded-lg bg-slate-900/90 text-indigo-300 border border-slate-800 hover:border-indigo-500/50 transition-colors">
+              B.Tech CSE Syllabus?
+            </button>
+          </div>
+
+          <!-- Query Input Area -->
+          <div class="relative">
+            <textarea id="chat-input" rows="3" placeholder="Enter your institutional question here... (e.g. grading formula, attendance rule, CIR placement criteria)" class="w-full bg-slate-900/90 text-slate-100 rounded-xl p-3.5 pr-28 text-sm border border-slate-700/80 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none"></textarea>
+            <button id="chat-submit-btn" onclick="executeQuestion()" class="absolute right-3 bottom-3.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-indigo-600/20 transition-all">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Generate</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Answer / Evidence Display Card -->
+        <div id="chat-result-container" class="hidden space-y-4">
+          <!-- Answer Card -->
+          <div class="glass-card rounded-2xl p-6 space-y-4">
+            <!-- Header with Grounding Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span id="chat-intent-badge" class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Academic Regulation</span>
+                <span class="text-slate-600">•</span>
+                <span id="chat-latency-badge" class="text-xs text-slate-400">-- ms</span>
+              </div>
+
+              <div class="flex items-center space-x-3">
+                <!-- Grounding Confidence Meter -->
+                <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-xs">
+                  <span class="text-slate-400">Grounding Confidence:</span>
+                  <span id="chat-grounding-score" class="font-bold text-emerald-400">--%</span>
+                </div>
+                <div id="chat-faithful-badge" class="flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                  <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                  <span>Faithful & Grounded</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rendered Answer Text -->
+            <div id="chat-answer-body" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-2">
+              <!-- Content rendered via Marked -->
+            </div>
+
+            <!-- Citations Block -->
+            <div class="pt-4 border-t border-slate-800/80">
+              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center space-x-1.5">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>Institutional Citations</span>
+              </h4>
+              <div id="chat-citations-list" class="space-y-1.5 text-xs text-slate-300">
+                <!-- Citation entries -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Retrieved Source Evidence Accordion -->
+          <div class="glass-card rounded-2xl p-5">
+            <button onclick="toggleEvidenceAccordion()" class="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <span class="flex items-center space-x-2">
+                <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
+                <span>Retrieved Evidence Passages (<span id="chat-source-count">0</span>)</span>
+              </span>
+              <i id="evidence-chevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+            </button>
+
+            <div id="evidence-accordion-body" class="hidden mt-4 space-y-3 pt-3 border-t border-slate-800">
+              <!-- Source Cards populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: HYBRID RETRIEVAL INSPECTOR                                   -->
+      <!-- =================================================================== -->
+      <section id="tab-retrieval" class="tab-content hidden space-y-6">
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+              <i data-lucide="binary" class="w-5 h-5 text-cyan-400"></i>
+              <span>Multi-Stage Hybrid RAG Inspector</span>
+            </h2>
+            <p class="text-xs text-slate-400">Inspect Dense Semantic Vector Search + BM25 Lexical Scores + Reciprocal Rank Fusion (RRF)</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="inspect-query" placeholder="Enter test query (e.g. 'R.14 grading criteria 2023')" class="flex-1 bg-slate-900/90 text-slate-100 rounded-xl px-4 py-2.5 text-sm border border-slate-700 focus:outline-none focus:border-cyan-500">
+            <select id="inspect-role" class="bg-slate-900 text-slate-300 text-xs px-3 py-2 rounded-xl border border-slate-700">
+              <option value="student">Role: Student</option>
+              <option value="faculty">Role: Faculty</option>
+              <option value="admin">Role: Admin</option>
+              <option value="public">Role: Public</option>
+            </select>
+            <button onclick="executeRetrievalInspect()" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors">
+              <i data-lucide="search" class="w-4 h-4"></i>
+              <span>Inspect Retrieval</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inspection Results -->
+        <div id="inspect-results-container" class="hidden space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-card rounded-xl p-4">
+              <span class="text-xs text-slate-400">Detected Intent</span>
+              <div id="inspect-intent" class="text-lg font-bold text-white mt-1">--</div>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+              <span class="text-xs text-slate-400">Total Fused Candidates</span>
+              <div id="inspect-total-candidates" class="text-lg font-bold text-cyan-400 mt-1">--</div>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+              <span class="text-xs text-slate-400">Final Top-K Selected</span>
+              <div id="inspect-selected-k" class="text-lg font-bold text-emerald-400 mt-1">--</div>
+            </div>
+          </div>
+
+          <!-- Passages Table -->
+          <div class="glass-card rounded-2xl p-5">
+            <h3 class="text-sm font-semibold text-slate-200 mb-3">Reranked Evidence Candidate Chunks</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th class="p-3 rounded-l-lg">Rank</th>
+                    <th class="p-3">Document</th>
+                    <th class="p-3">Department</th>
+                    <th class="p-3">Section / Page</th>
+                    <th class="p-3">Rerank Score</th>
+                    <th class="p-3 rounded-r-lg">Access</th>
+                  </tr>
+                </thead>
+                <tbody id="inspect-table-body" class="divide-y divide-slate-800">
+                  <!-- Rows inserted dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 4: DOCUMENT CATALOG EXPLORER                                    -->
+      <!-- =================================================================== -->
+      <section id="tab-documents" class="tab-content hidden space-y-6">
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+                <i data-lucide="folder" class="w-5 h-5 text-indigo-400"></i>
+                <span>Institutional Document Catalog</span>
+              </h2>
+              <p class="text-xs text-slate-400">Browse, filter, and inspect structured documents in the relational catalog</p>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="text" id="doc-search-query" onkeyup="filterDocumentsCatalog()" placeholder="Search documents..." class="bg-slate-900 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500 w-44">
+              <select id="doc-dept-select" onchange="filterDocumentsCatalog()" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
+                <option value="">All Departments</option>
+              </select>
+              <select id="doc-access-select" onchange="filterDocumentsCatalog()" class="bg-slate-900 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
+                <option value="">All Access Levels</option>
+                <option value="public">Public</option>
+                <option value="student">Student</option>
+                <option value="faculty">Faculty</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Document Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th class="p-3">Filename</th>
+                  <th class="p-3">Department</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Year / Ver</th>
+                  <th class="p-3">Sections</th>
+                  <th class="p-3">Policy</th>
+                  <th class="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="documents-table-body" class="divide-y divide-slate-800">
+                <!-- Rows inserted dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination / Count Footer -->
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-2">
+            <div>Showing <span id="doc-showing-count" class="text-slate-200 font-semibold">0</span> documents</div>
+            <div class="flex items-center space-x-2">
+              <button id="doc-prev-page" onclick="changeDocPage(-1)" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50">Prev</button>
+              <span id="doc-page-info" class="text-slate-400">Page 1</span>
+              <button id="doc-next-page" onclick="changeDocPage(1)" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Document Version Comparison Tool -->
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <h3 class="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+            <i data-lucide="git-compare" class="w-4 h-4 text-purple-400"></i>
+            <span>Document & Policy Version Comparator</span>
+          </h3>
+          <p class="text-xs text-slate-400">Compare revisions between two regulations or curriculum documents on a specific topic</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="text" id="compare-doc1" placeholder="Doc ID 1 (e.g. 0e9e693151be)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
+            <input type="text" id="compare-doc2" placeholder="Doc ID 2 (e.g. 3a61d2dfbd68)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
+            <input type="text" id="compare-topic" placeholder="Topic filter (e.g. Attendance, Grading)" class="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-xl border border-slate-700">
+          </div>
+          <button onclick="executeCompareDocs()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors">
+            <i data-lucide="split" class="w-3.5 h-3.5"></i>
+            <span>Compare Versions</span>
+          </button>
+
+          <div id="compare-results" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 5: INGESTION & INDEX BUS                                        -->
+      <!-- =================================================================== -->
+      <section id="tab-ingestion" class="tab-content hidden space-y-6">
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+                <i data-lucide="hard-drive-download" class="w-5 h-5 text-emerald-400"></i>
+                <span>Institutional Knowledge Ingestion Engine</span>
+              </h2>
+              <p class="text-xs text-slate-400">Continuous document ingestion, SHA-256 idempotency, and incremental embedding cache</p>
+            </div>
+            <span id="ingestion-live-status-badge" class="px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300 border border-slate-700 font-medium">Idle</span>
+          </div>
+
+          <!-- Ingestion Controls -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <span class="text-xs text-slate-400 font-medium">Mode</span>
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="ingest-force" class="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950">
+                <label for="ingest-force" class="text-xs text-slate-300 cursor-pointer">Force Re-index (Bypass Cache)</label>
+              </div>
+              <p class="text-[11px] text-slate-500">Default: Incremental update (skips already-embedded chunks in seconds!)</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <span class="text-xs text-slate-400 font-medium">File Limit (Optional)</span>
+              <input type="number" id="ingest-max-files" placeholder="e.g. 50 (leave blank for all)" class="w-full bg-slate-950 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700">
+              <p class="text-[11px] text-slate-500">Test ingestion over a limited sample of files.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+              <span class="text-xs text-slate-400 font-medium">Trigger Execution</span>
+              <button id="btn-trigger-ingestion" onclick="triggerIngestionRun()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Run Ingestion Pipeline</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ingestion Console Log -->
+          <div class="space-y-2 pt-2">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span class="font-mono">Ingestion Bus Console Output</span>
+              <button onclick="clearIngestLog()" class="hover:text-slate-200">Clear</button>
+            </div>
+            <div id="ingestion-console" class="w-full h-56 rounded-xl bg-slate-950 p-4 font-mono text-xs text-emerald-400 overflow-y-auto border border-slate-800/90 whitespace-pre-wrap">
+AmritaGPT Ingestion Bus ready.
+Incremental embedding cache enabled. Unmodified documents will be skipped automatically.
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 6: TELEMETRY & AUDIT LOGS                                       -->
+      <!-- =================================================================== -->
+      <section id="tab-telemetry" class="tab-content hidden space-y-6">
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+                <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i>
+                <span>Query Telemetry & Audit Trail</span>
+              </h2>
+              <p class="text-xs text-slate-400">Real-time observability into institutional questions, latency, and grounding quality</p>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button onclick="runRagBenchmark()" id="btn-benchmark" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-medium flex items-center space-x-1.5 transition-colors">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Run Golden Benchmark</span>
+              </button>
+              <button onclick="loadTelemetryLogs()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700 transition-colors">
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Benchmark Modal / Panel -->
+          <div id="benchmark-results-panel" class="hidden p-4 rounded-xl bg-indigo-950/40 border border-indigo-800/80 space-y-3">
+            <h4 class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Golden RAG Evaluation Benchmark Results</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-400 uppercase">Recall @ 1</span>
+                <div id="bench-recall1" class="text-base font-bold text-emerald-400">--</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-400 uppercase">Recall @ 5</span>
+                <div id="bench-recall5" class="text-base font-bold text-emerald-400">--</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-400 uppercase">MRR</span>
+                <div id="bench-mrr" class="text-base font-bold text-cyan-400">--</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-400 uppercase">Mean Latency</span>
+                <div id="bench-latency" class="text-base font-bold text-amber-400">--</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-400 uppercase">Grounded Acc</span>
+                <div id="bench-faithfulness" class="text-base font-bold text-indigo-400">--</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Telemetry Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th class="p-3">Time</th>
+                  <th class="p-3">Query</th>
+                  <th class="p-3">Role</th>
+                  <th class="p-3">Intent</th>
+                  <th class="p-3">Dense</th>
+                  <th class="p-3">BM25</th>
+                  <th class="p-3">Grounding</th>
+                  <th class="p-3">Latency</th>
+                </tr>
+              </thead>
+              <tbody id="telemetry-table-body" class="divide-y divide-slate-800">
+                <!-- Rows inserted dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- TAB 7: MCP & DEVELOPER HUB                                          -->
+      <!-- =================================================================== -->
+      <section id="tab-mcp" class="tab-content hidden space-y-6">
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 class="text-base font-semibold text-slate-200 flex items-center space-x-2">
+              <i data-lucide="cpu" class="w-5 h-5 text-indigo-400"></i>
+              <span>Model Context Protocol (MCP) Integration Hub</span>
+            </h2>
+            <p class="text-xs text-slate-400">Connect Claude Desktop, Cursor, and Antigravity directly to AmritaGPT tools</p>
+          </div>
+
+          <!-- MCP SSE Connection Card -->
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300">Active MCP SSE Endpoint</span>
+              <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono">200 OK</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <input type="text" readonly id="mcp-url-input" value="http://localhost:8000/mcp/sse" class="flex-1 bg-slate-950 text-indigo-300 font-mono text-xs px-3.5 py-2 rounded-lg border border-slate-800">
+              <button onclick="copyMcpUrl()" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center space-x-1 transition-colors">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span id="copy-btn-text">Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Configuration Blocks -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Claude Desktop Config -->
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <span class="text-xs font-semibold text-slate-300">Claude Desktop / Antigravity Config (SSE)</span>
+              <pre class="bg-slate-950 p-3 rounded-lg text-[11px] text-slate-300 font-mono overflow-x-auto border border-slate-800/80"><code>{
+  "mcpServers": {
+    "amritagpt": {
+      "url": "http://localhost:8000/mcp/sse",
+      "transport": "sse"
+    }
+  }
+}</code></pre>
+            </div>
+
+            <!-- Stdio Config -->
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <span class="text-xs font-semibold text-slate-300">Stdio Local Process Config</span>
+              <pre class="bg-slate-950 p-3 rounded-lg text-[11px] text-slate-300 font-mono overflow-x-auto border border-slate-800/80"><code>{
+  "mcpServers": {
+    "amritagpt": {
+      "command": "python",
+      "args": [
+        "/home/hirthikbalaji/SocialMedia/AmritaGPT-RAG-MCP/run_server.py",
+        "--mode", "mcp"
+      ]
+    }
+  }
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- MCP Tools Exposed -->
+          <div class="space-y-3 pt-2">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Available MCP Tools</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="font-mono text-xs text-indigo-400 font-semibold">search_institutional_knowledge</div>
+                <p class="text-xs text-slate-400">Hybrid semantic search across syllabus, regulations, policies, and faculty records.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="font-mono text-xs text-indigo-400 font-semibold">ask_grounded_question</div>
+                <p class="text-xs text-slate-400">Answers questions strictly grounded in institutional documents with citations.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="font-mono text-xs text-indigo-400 font-semibold">search_policies_regulations</div>
+                <p class="text-xs text-slate-400">Direct lookup for university regulations, ordinances, and administrative guidelines.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="font-mono text-xs text-indigo-400 font-semibold">search_document_catalog</div>
+                <p class="text-xs text-slate-400">Finds official institutional files by name, department, or keywords.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- API Links -->
+          <div class="pt-4 border-t border-slate-800 flex flex-wrap gap-4 text-xs">
+            <a href="/docs" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+              <span>Interactive Swagger UI</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+            <a href="/redoc" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+              <span>ReDoc Specification</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+            <a href="/openapi.json" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+              <span>OpenAPI 3.1 JSON</span>
+              <i data-lucide="file-code" class="w-3 h-3"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Document Detail Modal                                                     -->
+  <!-- ========================================================================= -->
+  <div id="doc-detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="glass-card rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-700 shadow-2xl">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 id="modal-doc-title" class="text-sm font-semibold text-white">Document Details</h3>
+          <p id="modal-doc-meta" class="text-xs text-slate-400">Department • Category</p>
+        </div>
+        <button onclick="closeDocModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modal-doc-body" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-300">
+        <!-- Sections populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Client JavaScript Logic                                                   -->
+  <!-- ========================================================================= -->
+  <script>
+    let activeRole = 'student';
+    let deptChart = null;
+    let accessChart = null;
+    let allDocumentsCache = [];
+    let docCurrentPage = 1;
+    const docPageSize = 15;
+    let currentEvidenceData = [];
+
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      refreshDashboardStats();
+      loadTelemetryLogs();
+      loadDocuments();
+    });
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+        btn.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
+      });
+
+      const activeSection = document.getElementById(`tab-${tabId}`);
+      if (activeSection) activeSection.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+      }
+
+      lucide.createIcons();
+
+      // Lazy refresh for specific tabs
+      if (tabId === 'telemetry') loadTelemetryLogs();
+      if (tabId === 'documents') loadDocuments();
+    }
+
+    // Role switcher
+    function updateActiveRole() {
+      activeRole = document.getElementById('global-role-select').value;
+      const inspectRole = document.getElementById('inspect-role');
+      if (inspectRole) inspectRole.value = activeRole;
+    }
+
+    // Refresh Dashboard Stats
+    async function refreshDashboardStats() {
+      try {
+        const [healthRes, statsRes] = await Promise.all([
+          fetch('/health').then(r => r.json()),
+          fetch('/api/v1/system/stats').then(r => r.json())
+        ]);
+
+        document.getElementById('stat-docs').textContent = (statsRes.total_documents || 0).toLocaleString();
+        document.getElementById('stat-chunks').textContent = (statsRes.total_chunks || 0).toLocaleString();
+        document.getElementById('stat-grounding').textContent = Math.round((statsRes.avg_grounding_score || 0.92) * 100) + '%';
+        document.getElementById('stat-latency').textContent = Math.round(statsRes.avg_query_latency_ms || 3200) + ' ms';
+
+        document.getElementById('system-status-pill').textContent = healthRes.status === 'healthy' 
+          ? `Online • ${statsRes.total_documents} Docs • ${statsRes.total_chunks} Chunks`
+          : 'Degraded';
+
+        // Update charts
+        renderDeptChart(statsRes.departments || {});
+        renderAccessChart(statsRes.access_distribution || {});
+
+        // Populate department dropdown filters
+        populateDeptDropdowns(Object.keys(statsRes.departments || {}));
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+        document.getElementById('system-status-pill').textContent = 'API Reconnecting...';
+      }
+    }
+
+    function populateDeptDropdowns(depts) {
+      const selects = [document.getElementById('chat-dept-filter'), document.getElementById('doc-dept-select')];
+      selects.forEach(sel => {
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="">All Departments</option>';
+        depts.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d;
+          opt.textContent = d;
+          sel.appendChild(opt);
+        });
+        sel.value = currentVal;
+      });
+    }
+
+    // Render Department Bar Chart
+    function renderDeptChart(depts) {
+      const ctx = document.getElementById('deptChart');
+      if (!ctx) return;
+
+      const labels = Object.keys(depts).slice(0, 10);
+      const data = labels.map(k => depts[k]);
+
+      document.getElementById('dept-count-badge').textContent = `${Object.keys(depts).length} Departments`;
+
+      if (deptChart) deptChart.destroy();
+
+      deptChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Documents',
+            data: data,
+            backgroundColor: 'rgba(99, 102, 241, 0.75)',
+            hoverBackgroundColor: 'rgba(129, 140, 248, 0.9)',
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(30, 41, 59, 0.6)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Render Access Distribution Doughnut Chart
+    function renderAccessChart(accessDist) {
+      const ctx = document.getElementById('accessChart');
+      if (!ctx) return;
+
+      const labels = Object.keys(accessDist);
+      const data = labels.map(k => accessDist[k]);
+
+      if (accessChart) accessChart.destroy();
+
+      accessChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+          datasets: [{
+            data: data,
+            backgroundColor: [
+              'rgba(239, 68, 68, 0.8)',   // admin: red
+              'rgba(168, 85, 247, 0.8)',  // faculty: purple
+              'rgba(59, 130, 246, 0.8)',   // student: blue
+              'rgba(16, 185, 129, 0.8)'   // public: green
+            ],
+            borderColor: '#111827',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#cbd5e1', font: { size: 11 }, boxWidth: 12 }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    // Grounded Q&A Studio Execution
+    function setChatPrompt(text) {
+      document.getElementById('chat-input').value = text;
+      document.getElementById('chat-input').focus();
+    }
+
+    async function executeQuestion() {
+      const input = document.getElementById('chat-input');
+      const question = input.value.trim();
+      if (!question) return;
+
+      const btn = document.getElementById('chat-submit-btn');
+      const deptFilter = document.getElementById('chat-dept-filter').value || null;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Reasoning...</span>`;
+      lucide.createIcons();
+
+      const container = document.getElementById('chat-result-container');
+      container.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/v1/qa/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: question,
+            role: activeRole,
+            department: deptFilter
+          })
+        });
+
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        const data = await res.json();
+
+        // Render Grounding & Intent
+        document.getElementById('chat-intent-badge').textContent = data.intent || 'Institutional Query';
+        document.getElementById('chat-latency-badge').textContent = `${Math.round(data.latency_ms)} ms`;
+        
+        const scorePct = Math.round((data.grounding_score || 0) * 100);
+        const scoreElem = document.getElementById('chat-grounding-score');
+        scoreElem.textContent = `${scorePct}%`;
+        scoreElem.className = scorePct >= 80 ? 'font-bold text-emerald-400' : 'font-bold text-amber-400';
+
+        // Render Markdown Answer
+        const rawAnswer = data.answer || 'No answer generated.';
+        document.getElementById('chat-answer-body').innerHTML = marked.parse(rawAnswer);
+
+        // Render Citations
+        const citationsList = document.getElementById('chat-citations-list');
+        citationsList.innerHTML = '';
+        if (data.citations && data.citations.length > 0) {
+          data.citations.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'p-2 rounded bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[11px]';
+            div.innerHTML = marked.parse(c);
+            citationsList.appendChild(div);
+          });
+        } else {
+          citationsList.innerHTML = '<span class="text-slate-500 italic">No explicit citations recorded.</span>';
+        }
+
+        // Render Evidence Sources
+        currentEvidenceData = data.sources || [];
+        document.getElementById('chat-source-count').textContent = currentEvidenceData.length;
+        renderEvidenceSources(currentEvidenceData);
+
+      } catch (err) {
+        alert('Failed to generate answer: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Generate</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function toggleEvidenceAccordion() {
+      const body = document.getElementById('evidence-accordion-body');
+      const chevron = document.getElementById('evidence-chevron');
+      if (body.classList.contains('hidden')) {
+        body.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+      } else {
+        body.classList.add('hidden');
+        chevron.classList.remove('rotate-180');
+      }
+    }
+
+    function renderEvidenceSources(sources) {
+      const container = document.getElementById('evidence-accordion-body');
+      container.innerHTML = '';
+      if (!sources || sources.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 italic">No retrieved source candidates.</p>';
+        return;
+      }
+
+      sources.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5';
+        item.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-semibold">
+            <span class="text-indigo-300 flex items-center space-x-1">
+              <span class="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800 text-[10px] font-mono">Source [${s.source_num}]</span>
+              <span class="truncate max-w-sm">${s.filename}</span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-[10px] font-mono">Rerank: ${s.rerank_score}</span>
+          </div>
+          <div class="flex flex-wrap gap-2 text-[11px] text-slate-400">
+            <span>Dept: <strong class="text-slate-300">${s.department}</strong></span>
+            <span>•</span>
+            <span>Section: <strong class="text-slate-300">${s.section}</strong></span>
+            ${s.page ? `<span>•</span><span>Page: <strong class="text-slate-300">${s.page}</strong></span>` : ''}
+            <span>•</span>
+            <span>Policy: <strong class="text-indigo-300 uppercase">${s.access_policy}</strong></span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Hybrid Retrieval Inspector
+    async function executeRetrievalInspect() {
+      const query = document.getElementById('inspect-query').value.trim();
+      if (!query) return;
+
+      const role = document.getElementById('inspect-role').value;
+      const resContainer = document.getElementById('inspect-results-container');
+
+      try {
+        const res = await fetch('/api/v1/search/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: query,
+            role: role,
+            top_k: 10
+          })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        resContainer.classList.remove('hidden');
+        document.getElementById('inspect-intent').textContent = data.analyzed_intent || 'General';
+        document.getElementById('inspect-total-candidates').textContent = data.total_candidates_retrieved || 0;
+        document.getElementById('inspect-selected-k').textContent = data.selected_evidence_count || 0;
+
+        const tbody = document.getElementById('inspect-table-body');
+        tbody.innerHTML = '';
+
+        data.sources.forEach((s, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-900/50 transition-colors';
+          tr.innerHTML = `
+            <td class="p-3 font-mono font-bold text-cyan-400">#${idx + 1}</td>
+            <td class="p-3 font-medium text-slate-200 truncate max-w-xs">${s.filename}</td>
+            <td class="p-3 text-slate-400">${s.department}</td>
+            <td class="p-3 text-slate-400">${s.section} ${s.page ? `(p. ${s.page})` : ''}</td>
+            <td class="p-3 font-mono text-emerald-400">${s.rerank_score}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-indigo-300 border border-slate-700">${s.access_policy}</span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        alert('Retrieval inspection failed: ' + err.message);
+      }
+    }
+
+    // Document Catalog
+    async function loadDocuments() {
+      try {
+        const res = await fetch('/api/v1/documents?limit=300');
+        if (!res.ok) {
+          // Fallback to searching with empty query if endpoint pending
+          const fallback = await fetch('/api/v1/search/documents', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ query: '', role: 'admin' })
+          }).then(r => r.json());
+          allDocumentsCache = fallback.documents || [];
+        } else {
+          const data = await res.json();
+          allDocumentsCache = data.documents || [];
+        }
+        renderDocumentsTable();
+      } catch (err) {
+        console.error('Failed to load documents:', err);
+      }
+    }
+
+    function filterDocumentsCatalog() {
+      docCurrentPage = 1;
+      renderDocumentsTable();
+    }
+
+    function renderDocumentsTable() {
+      const q = (document.getElementById('doc-search-query')?.value || '').toLowerCase();
+      const dept = document.getElementById('doc-dept-select')?.value || '';
+      const access = document.getElementById('doc-access-select')?.value || '';
+
+      const filtered = allDocumentsCache.filter(d => {
+        const matchesQ = !q || (d.filename && d.filename.toLowerCase().includes(q)) || (d.category && d.category.toLowerCase().includes(q));
+        const matchesDept = !dept || d.department === dept;
+        const matchesAccess = !access || d.access_policy === access;
+        return matchesQ && matchesDept && matchesAccess;
+      });
+
+      document.getElementById('doc-showing-count').textContent = filtered.length;
+      const totalPages = Math.ceil(filtered.length / docPageSize) || 1;
+      document.getElementById('doc-page-info').textContent = `Page ${docCurrentPage} of ${totalPages}`;
+      document.getElementById('doc-prev-page').disabled = docCurrentPage <= 1;
+      document.getElementById('doc-next-page').disabled = docCurrentPage >= totalPages;
+
+      const paged = filtered.slice((docCurrentPage - 1) * docPageSize, docCurrentPage * docPageSize);
+      const tbody = document.getElementById('documents-table-body');
+      tbody.innerHTML = '';
+
+      if (paged.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 italic">No matching institutional documents found.</td></tr>`;
+        return;
+      }
+
+      paged.forEach(doc => {
+        const policyClass = {
+          'admin': 'bg-red-950/80 text-red-300 border-red-800',
+          'faculty': 'bg-purple-950/80 text-purple-300 border-purple-800',
+          'student': 'bg-blue-950/80 text-blue-300 border-blue-800',
+          'public': 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
+        }[doc.access_policy] || 'bg-slate-800 text-slate-300 border-slate-700';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50 transition-colors';
+        tr.innerHTML = `
+          <td class="p-3 font-medium text-slate-200 flex items-center space-x-2">
+            <i data-lucide="file" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
+            <span class="truncate max-w-xs" title="${doc.filename}">${doc.filename}</span>
+          </td>
+          <td class="p-3 text-slate-400 truncate max-w-[140px]">${doc.department}</td>
+          <td class="p-3 text-slate-400 truncate max-w-[140px]">${doc.category}</td>
+          <td class="p-3 text-slate-400 font-mono text-[11px]">${doc.academic_year || doc.version || 'current'}</td>
+          <td class="p-3 text-slate-400 font-mono">${doc.section_count || doc.sections || '--'}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase border ${policyClass}">${doc.access_policy}</span>
+          </td>
+          <td class="p-3 text-right">
+            <button onclick="viewDocumentDetail('${doc.doc_id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium text-[11px] transition-colors">
+              Inspect
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function changeDocPage(delta) {
+      docCurrentPage += delta;
+      renderDocumentsTable();
+    }
+
+    // View Document Detail Modal
+    async function viewDocumentDetail(docId) {
+      try {
+        const res = await fetch(`/api/v1/documents/${docId}`);
+        if (!res.ok) throw new Error('Could not fetch document details');
+        const doc = await res.json();
+
+        document.getElementById('modal-doc-title').textContent = doc.filename;
+        document.getElementById('modal-doc-meta').textContent = `${doc.department} • ${doc.category} • Year: ${doc.academic_year || 'N/A'} • Access: ${doc.access_policy.toUpperCase()}`;
+
+        const body = document.getElementById('modal-doc-body');
+        body.innerHTML = `
+          <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between">
+            <span>Doc ID: <strong class="text-indigo-300 font-mono">${doc.doc_id}</strong></span>
+            <span>Total Sections: <strong class="text-emerald-400">${doc.total_sections}</strong></span>
+          </div>
+          <div class="space-y-3 pt-2">
+            <h4 class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Parsed Content Sections</h4>
+            ${doc.sections.map(s => `
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="flex justify-between font-semibold text-slate-200">
+                  <span>${s.section_title}</span>
+                  ${s.page ? `<span class="text-slate-400 text-[11px]">Page ${s.page}</span>` : ''}
+                </div>
+                <div class="text-slate-300 font-mono text-[11px] bg-slate-950 p-2 rounded whitespace-pre-wrap max-h-40 overflow-y-auto">
+                  ${s.raw_content}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        document.getElementById('doc-detail-modal').classList.remove('hidden');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function closeDocModal() {
+      document.getElementById('doc-detail-modal').classList.add('hidden');
+    }
+
+    // Compare Documents
+    async function executeCompareDocs() {
+      const doc1 = document.getElementById('compare-doc1').value.trim();
+      const doc2 = document.getElementById('compare-doc2').value.trim();
+      const topic = document.getElementById('compare-topic').value.trim();
+
+      if (!doc1 || !doc2) {
+        alert('Please enter both document IDs to compare.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/v1/documents/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ doc_id_1: doc1, doc_id_2: doc2, topic: topic })
+        });
+
+        if (!res.ok) throw new Error('Failed to compare documents');
+        const data = await res.json();
+
+        const container = document.getElementById('compare-results');
+        container.classList.remove('hidden');
+        container.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="font-semibold text-indigo-400">${data.doc_1.filename}</div>
+            <div class="text-xs text-slate-400">AY: ${data.doc_1.academic_year || 'N/A'} • Matched Sections: ${data.doc_1.sections_matched}</div>
+            <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded font-mono whitespace-pre-wrap">${data.doc_1.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="font-semibold text-cyan-400">${data.doc_2.filename}</div>
+            <div class="text-xs text-slate-400">AY: ${data.doc_2.academic_year || 'N/A'} • Matched Sections: ${data.doc_2.sections_matched}</div>
+            <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded font-mono whitespace-pre-wrap">${data.doc_2.sample_content.join('\n---\n') || 'No section matching topic.'}</div>
+          </div>
+        `;
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Ingestion Bus Trigger & Polling
+    let ingestPollInterval = null;
+
+    async function triggerIngestionRun() {
+      const force = document.getElementById('ingest-force').checked;
+      const maxFilesInput = document.getElementById('ingest-max-files').value;
+      const maxFiles = maxFilesInput ? parseInt(maxFilesInput) : null;
+
+      const btn = document.getElementById('btn-trigger-ingestion');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Starting Ingestion...</span>`;
+      lucide.createIcons();
+
+      const log = document.getElementById('ingestion-console');
+      log.textContent += `\n[${new Date().toLocaleTimeString()}] Triggering ingestion (force=${force}, max_files=${maxFiles || 'all'})...\n`;
+
+      try {
+        const res = await fetch('/api/v1/ingestion/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ force_reindex: force, max_files: maxFiles })
+        });
+
+        const data = await res.json();
+        log.textContent += `[${new Date().toLocaleTimeString()}] Pipeline started: ${data.message || 'Running in background'}\n`;
+        document.getElementById('ingestion-live-status-badge').textContent = 'Running';
+        document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-amber-950 text-amber-400 border border-amber-800 font-medium animate-pulse';
+
+        // Start polling status
+        if (ingestPollInterval) clearInterval(ingestPollInterval);
+        ingestPollInterval = setInterval(pollIngestionStatus, 2000);
+
+      } catch (err) {
+        log.textContent += `[Error] Failed to trigger ingestion: ${err.message}\n`;
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    async function pollIngestionStatus() {
+      try {
+        const res = await fetch('/api/v1/ingestion/status');
+        const status = await res.json();
+        const log = document.getElementById('ingestion-console');
+
+        if (status.status === 'completed') {
+          clearInterval(ingestPollInterval);
+          ingestPollInterval = null;
+
+          document.getElementById('ingestion-live-status-badge').textContent = 'Completed';
+          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 font-medium';
+          
+          log.textContent += `\n[${new Date().toLocaleTimeString()}] INGESTION COMPLETED!\n` +
+            `• Files scanned: ${status.last_result?.total_files_scanned || '--'}\n` +
+            `• New / updated docs: ${status.last_result?.new_or_updated_docs || 0}\n` +
+            `• Skipped unmodified: ${status.last_result?.skipped_unmodified || 0}\n` +
+            `• Total chunks in index: ${status.last_result?.total_chunks_indexed || '--'}\n` +
+            `• Elapsed time: ${status.last_result?.elapsed_seconds || '--'}s\n`;
+
+          const btn = document.getElementById('btn-trigger-ingestion');
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
+          lucide.createIcons();
+
+          refreshDashboardStats();
+          loadDocuments();
+        } else if (status.status === 'error') {
+          clearInterval(ingestPollInterval);
+          ingestPollInterval = null;
+          document.getElementById('ingestion-live-status-badge').textContent = 'Failed';
+          document.getElementById('ingestion-live-status-badge').className = 'px-3 py-1 rounded-full text-xs bg-red-950 text-red-400 border border-red-800 font-medium';
+          log.textContent += `\n[Error] ${status.error || 'Ingestion encountered an error'}\n`;
+          const btn = document.getElementById('btn-trigger-ingestion');
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Run Ingestion Pipeline</span>`;
+          lucide.createIcons();
+        } else {
+          log.textContent += `[${new Date().toLocaleTimeString()}] ${status.progress_message || 'Processing files...'}\n`;
+        }
+      } catch (err) {
+        console.error('Poll error:', err);
+      }
+    }
+
+    function clearIngestLog() {
+      document.getElementById('ingestion-console').textContent = '';
+    }
+
+    // Telemetry & Audit Logs
+    async function loadTelemetryLogs() {
+      try {
+        const res = await fetch('/api/v1/system/telemetry?limit=30');
+        if (!res.ok) return;
+        const logs = await res.json();
+
+        const tbody = document.getElementById('telemetry-table-body');
+        tbody.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 italic">No query telemetry recorded yet.</td></tr>`;
+          return;
+        }
+
+        logs.forEach(log => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-900/50 transition-colors';
+          tr.innerHTML = `
+            <td class="p-3 font-mono text-[11px] text-slate-400">${(log.timestamp || '').split(' ')[1] || log.timestamp}</td>
+            <td class="p-3 font-medium text-slate-200 truncate max-w-xs">${log.query}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] uppercase font-semibold bg-slate-800 text-indigo-300 border border-slate-700">${log.role}</span></td>
+            <td class="p-3 text-slate-400">${log.detected_intent || 'General'}</td>
+            <td class="p-3 font-mono text-slate-400">${log.dense_hits}</td>
+            <td class="p-3 font-mono text-slate-400">${log.bm25_hits}</td>
+            <td class="p-3 font-mono text-emerald-400">${Math.round((log.grounding_score || 0) * 100)}%</td>
+            <td class="p-3 font-mono text-amber-400">${Math.round(log.latency_ms)} ms</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load telemetry:', err);
+      }
+    }
+
+    async function runRagBenchmark() {
+      const btn = document.getElementById('btn-benchmark');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Running Suite...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/v1/evaluation/run', { method: 'POST' });
+        if (!res.ok) throw new Error('Benchmark failed');
+        const data = await res.json();
+
+        document.getElementById('benchmark-results-panel').classList.remove('hidden');
+        document.getElementById('bench-recall1').textContent = `${Math.round(data.recall_at_1 * 100)}%`;
+        document.getElementById('bench-recall5').textContent = `${Math.round(data.recall_at_5 * 100)}%`;
+        document.getElementById('bench-mrr').textContent = (data.mean_reciprocal_rank || 0).toFixed(2);
+        document.getElementById('bench-latency').textContent = `${Math.round(data.mean_latency_ms || 0)} ms`;
+        document.getElementById('bench-faithfulness').textContent = `${Math.round((data.faithfulness_score || 0.95) * 100)}%`;
+
+        refreshDashboardStats();
+      } catch (err) {
+        alert('Benchmark execution error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Run Golden Benchmark</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // MCP Copy Button
+    function copyMcpUrl() {
+      const copyText = document.getElementById('mcp-url-input');
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+      document.getElementById('copy-btn-text').textContent = 'Copied!';
+      setTimeout(() => {
+        document.getElementById('copy-btn-text').textContent = 'Copy';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

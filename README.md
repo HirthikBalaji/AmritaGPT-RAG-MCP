@@ -209,6 +209,7 @@ python scripts/test_openapi_client.py
 python run_server.py --mode api --port 8000
 ```
 Then visit:
+* **Interactive Management Dashboard**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
 * **Interactive Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
 * **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 * **OpenAPI Spec**: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)

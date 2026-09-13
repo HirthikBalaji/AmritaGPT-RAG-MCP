@@ -35,6 +35,7 @@ def main():
 
         print("=" * 70, file=sys.stderr)
         print("  AMRITAGPT OPENAPI REST GATEWAY & MCP SERVER", file=sys.stderr)
+        print(f"  Interactive Dashboard:  http://localhost:{args.port}/dashboard", file=sys.stderr)
         print(f"  Interactive Swagger UI: http://localhost:{args.port}/docs", file=sys.stderr)
         print(f"  ReDoc Documentation:    http://localhost:{args.port}/redoc", file=sys.stderr)
         print(f"  OpenAPI 3.1 Spec:       http://localhost:{args.port}/openapi.json", file=sys.stderr)

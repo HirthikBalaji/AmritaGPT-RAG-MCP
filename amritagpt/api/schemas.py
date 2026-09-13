@@ -169,3 +169,22 @@ class EvaluationMetricResponse(BaseModel):
     p50_latency_ms: float = Field(..., example=180.2)
     p95_latency_ms: float = Field(..., example=245.0)
     detailed_results: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Ingestion Bus Schemas
+# ---------------------------------------------------------------------------
+
+class IngestionRunRequest(BaseModel):
+    force_reindex: bool = Field(False, description="Force reindexing and re-embedding of all documents", example=False)
+    max_files: Optional[int] = Field(None, description="Optional maximum number of files to process", example=50)
+
+
+class IngestionStatusResponse(BaseModel):
+    status: str = Field(..., example="idle")
+    progress_message: str = Field(..., example="Ready")
+    last_result: Optional[Dict[str, Any]] = Field(None)
+    started_at: Optional[str] = Field(None)
+    completed_at: Optional[str] = Field(None)
+    error: Optional[str] = Field(None)
+
